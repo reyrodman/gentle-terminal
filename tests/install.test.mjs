@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -229,6 +229,19 @@ test('no detected client creates nothing', t => {
   assert.equal(r.code, 0, r.out);
   assert.match(r.out, /No supported MCP client was found/);
   assert.deepEqual(readdirSync(m.home), []);
+});
+
+test('started through a linked folder, the installer still runs', t => {
+  const m = machine();
+  t.after(m.cleanup);
+  const real = join(m.home, 'real');
+  mkdirSync(real);
+  for (const f of ['install.mjs', 'package.json']) writeFileSync(join(real, f), readFileSync(join(root, f)));
+  const link = join(m.home, 'link');
+  symlinkSync(real, link, windows ? 'junction' : 'dir');
+  const r = spawnSync(process.execPath, [join(link, 'install.mjs'), '--help'], { encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /^Usage: node install\.mjs/);
 });
 
 test('--update on a branch other than the default one says what it follows, and refuses local changes', t => {

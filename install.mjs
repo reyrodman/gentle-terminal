@@ -320,8 +320,8 @@ function planSkill(dir, mode) {
   let stat;
   try { stat = lstatSync(dest); } catch { /* missing */ }
   let target;
-  try { target = realpathSync(dest); } catch { /* missing or broken link */ }
-  const here = target !== undefined && target === realpathSync(root);
+  try { target = realpathSync.native(dest); } catch { /* missing or broken link */ }
+  const here = target !== undefined && target === realpathSync.native(root);
   const ourLink = stat?.isSymbolicLink() && (target === undefined || here || ownsFolder(target));
   if (mode === 'uninstall') {
     if (ourLink) return { status: 'removed', apply: () => removeLink(dest) };
@@ -423,7 +423,8 @@ function gitUpdate(args) {
   const git = (...a) => spawnSync('git', ['-C', root, ...a], { encoding: 'utf8' });
   const top = git('rev-parse', '--show-toplevel').stdout.trim();
   let isRoot = false;
-  try { isRoot = !!top && realpathSync(top) === realpathSync(root); } catch { /* not a checkout */ }
+  // The native resolver expands Windows 8.3 short names (RUNNER~1); git prints long ones.
+  try { isRoot = !!top && realpathSync.native(top) === realpathSync.native(root); } catch { /* not a checkout */ }
   // A release folder unpacked inside some other repository must not pull that repository.
   if (!isRoot) {
     throw new Error('--update needs a git checkout. Download the new release instead, then run node install.mjs');
@@ -562,7 +563,9 @@ async function main(argv) {
   return failed ? 1 : manual ? 2 : 0;
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+// Node resolves links in import.meta.url but not in argv[1] (macOS /var is a link to /private/var).
+const started = (() => { try { return realpathSync(resolve(process.argv[1])); } catch { return undefined; } })();
+if (started === fileURLToPath(import.meta.url)) {
   main(process.argv.slice(2)).then(code => { process.exitCode = code; },
     error => { console.error(`gentle-terminal install: ${error.message}`); process.exitCode = 1; });
 }
