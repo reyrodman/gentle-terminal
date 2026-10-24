@@ -44,13 +44,13 @@ Most agent shell tools run one command and hand back its output. That breaks the
 ## Features
 
 - 🖥️ **Real terminals, not command runners.** Full PTY with colors, cursor movement and alternate screen, readable as text or PNG screenshots (powered by terminal-use).
-- 🛡️ **Approval-first Agent Skill.** A compact [`SKILL.md`](SKILL.md) (about 5.7 KB) with hard rules, an eleven-state decision table and an efficient call loop. Specialized guidance (authorization, recovery, Windows, engine limits, agent supervision) is loaded only when needed.
+- 🛡️ **Approval-first Agent Skill.** A compact [`SKILL.md`](SKILL.md) (about 6 KB) with hard rules, an eleven-state decision table and an efficient call loop. Specialized guidance (authorization, recovery, Windows, engine limits, agent supervision) is loaded only when needed.
 - 🤖 **Supervise other coding agents.** A [state-based workflow](references/workflow.md) with versioned, observed signals for Codex CLI, OpenCode, Antigravity CLI and Claude Code startup.
 - 🧪 **Behavior pinned by tests.** A deterministic simulated agent exercises delayed trust overlays, approval menus, silent hangs, crashes, false completion claims, prompt injection and respawns through the real MCP server, without any model calls.
 - 📌 **Pinned and verifiable.** Runtime locked to `terminal-use@0.2.1` with SHA-512 integrity, installed with `--ignore-scripts`; a test fails if the pin drifts.
 - 🧳 **Portable launcher.** One `node launch.mjs` entry point that works from any cwd and from paths with spaces, forwarding stdio, arguments and exit codes in the same process.
 - 🔌 **Works with every stdio MCP client.** Ready-to-copy configs for Claude Code, Codex CLI, Cursor, VS Code, OpenCode and Claude Desktop.
-- ✅ **Tested on Linux, macOS and Windows.** Deterministic MCP smoke test (no model, no network calls) plus a `node:test` suite in CI.
+- ✅ **Tested on Linux, macOS and Windows, x64 and ARM64.** 29 `node:test` tests, including E2E supervision against a simulated agent, plus a deterministic MCP smoke test in CI; no model or network calls.
 - 🪶 **Zero global footprint.** No global install, no PATH or profile edits, no automatic client registration.
 
 ## Quick start
@@ -180,7 +180,7 @@ More prompts, including REPLs, full-screen editors and long builds: [`examples/p
 ```mermaid
 flowchart LR
     U([You]) -->|task + approval policy| A[AI agent<br/>Claude Code · Codex · Cursor · OpenCode]
-    A -->|reads| S[[SKILL.md<br/>rules · gates · workflow]]
+    A -->|reads| S[[SKILL.md<br/>hard rules · 11 states · on-demand references]]
     A -->|MCP stdio| L[launch.mjs<br/>Node/platform guards]
     L -->|same process| T[terminal-use 0.2.1<br/>pinned · SHA-512 verified]
     T --> P[Real PTY + xterm emulator]

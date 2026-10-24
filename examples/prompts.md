@@ -22,8 +22,9 @@ What good behavior looks like: one session is created, the variable persists bet
 
 What good behavior looks like:
 
-- The task is typed **once**. A wait timeout leads to re-reading the screen, never to resubmitting.
+- The task is typed **once**, without a trailing newline, checked in the input box, then submitted with one separate `Enter`. A wait timeout leads to re-reading the screen, never to resubmitting.
 - Trust, login and approval prompts are surfaced to you verbatim; nothing is approved "always" on your behalf.
+- Highlighted menu defaults (such as an `Update now` option) are read before anything is chosen, never accepted by pressing `Enter` blindly.
 - "Done" is only reported after the agent's artifact was inspected and its test was run independently.
 - The client is closed with its natural exit (`/quit`, `/exit`, or its menu) and the exit code is reported.
 
