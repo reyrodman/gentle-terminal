@@ -10,11 +10,12 @@ const expected = [
   'examples/README.md', 'examples/claude-desktop/claude_desktop_config.json',
   'examples/codex/config.toml', 'examples/cursor/mcp.json',
   'examples/opencode/opencode.json', 'examples/prompts.md', 'examples/vscode/mcp.json',
-  'launch.mjs', 'package.json',
-  'references/clients.md', 'references/workflow.md',
+  'evals/activation.json', 'launch.mjs', 'package.json',
+  'references/authorization.md', 'references/clients.md', 'references/engine.md',
+  'references/recovery.md', 'references/windows.md', 'references/workflow.md',
   'runtime/package-lock.json', 'runtime/package.json', 'smoke.mjs',
   'tests/export.test.mjs', 'tests/fixtures/fake-agent.mjs', 'tests/guards.test.mjs',
-  'tests/helpers/mcp-client.mjs', 'tests/launcher.test.mjs', 'tests/pin.test.mjs', 'tests/supervision.test.mjs'
+  'tests/helpers/mcp-client.mjs', 'tests/launcher.test.mjs', 'tests/pin.test.mjs', 'tests/skill.test.mjs', 'tests/supervision.test.mjs'
 ].sort();
 const lifecycle = ['preinstall', 'install', 'postinstall', 'prepare', 'prepack', 'postpack', 'prepublish', 'prepublishOnly'];
 test('local npm export includes only portable files, private metadata and valid links', () => {
