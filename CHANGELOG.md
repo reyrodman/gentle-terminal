@@ -6,6 +6,10 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixed
+
+- Documentation synced with 1.1.0: README skill size, test and ARM64 coverage, and architecture diagram; the pin-update checklist in `CONTRIBUTING.md` now includes `tests/guards.test.mjs`; `examples/prompts.md` reflects separate-`Enter` submission and unread menu defaults.
+
 ## [1.1.0] - 2026-10-24
 
 ### Changed
