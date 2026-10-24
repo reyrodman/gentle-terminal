@@ -14,6 +14,10 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 - `npm run update` (`install.mjs --update`): fast-forwards the git checkout, then reruns the installer from the new code. It refuses local changes, diverged branches and folders that are not their own checkout.
 - `tests/install.test.mjs` runs the installer against a temporary home folder.
 
+### Changed
+
+- README, `SECURITY.md` (installer scope and threat-model row), `examples/README.md` and `THIRD_PARTY_NOTICES.md` describe the installer; the README no longer claims that client configs are never edited, only that nothing edits them unless you run the installer.
+
 ### Fixed
 
 - Documentation synced with 1.1.0: README skill size, test and ARM64 coverage, and architecture diagram; the pin-update checklist in `CONTRIBUTING.md` now includes `tests/guards.test.mjs`; `examples/prompts.md` reflects separate-`Enter` submission and unread menu defaults.

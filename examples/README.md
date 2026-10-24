@@ -2,6 +2,8 @@
 
 Copy-paste starting points for wiring gentle-terminal into popular MCP clients, plus prompts that exercise the skill.
 
+You usually do not need them: `node install.mjs` in the repository root writes these entries for every client it finds (see the [README](../README.md#quick-start)). Use these files for project-level configs, clients it does not cover, or to review what it writes.
+
 | Client | File | Where it usually goes |
 |---|---|---|
 | Codex CLI | [`codex/config.toml`](codex/config.toml) | `~/.codex/config.toml` (merge the table) |

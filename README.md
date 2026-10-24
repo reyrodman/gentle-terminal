@@ -49,9 +49,9 @@ Most agent shell tools run one command and hand back its output. That breaks the
 - 🧪 **Behavior pinned by tests.** A deterministic simulated agent exercises delayed trust overlays, approval menus, silent hangs, crashes, false completion claims, prompt injection and respawns through the real MCP server, without any model calls.
 - 📌 **Pinned and verifiable.** Runtime locked to `terminal-use@0.2.1` with SHA-512 integrity, installed with `--ignore-scripts`; a test fails if the pin drifts.
 - 🧳 **Portable launcher.** One `node launch.mjs` entry point that works from any cwd and from paths with spaces, forwarding stdio, arguments and exit codes in the same process.
-- 🔌 **Works with every stdio MCP client.** Ready-to-copy configs for Claude Code, Codex CLI, Cursor, VS Code, OpenCode and Claude Desktop.
-- ✅ **Tested on Linux, macOS and Windows, x64 and ARM64.** 29 `node:test` tests, including E2E supervision against a simulated agent, plus a deterministic MCP smoke test in CI; no model or network calls.
-- 🪶 **Zero global footprint.** No global install, no PATH or profile edits, no automatic client registration.
+- 🔌 **One command for every client.** `node install.mjs` registers or updates gentle-terminal in each installed client: Cursor, VS Code, Codex, Claude Code, Claude Desktop, OpenCode, Antigravity, Gemini CLI and Windsurf. Ready-to-copy configs are included for manual setup.
+- ✅ **Tested on Linux, macOS and Windows, x64 and ARM64.** 41 `node:test` tests, including E2E supervision against a simulated agent and the installer against a temporary home folder, plus a deterministic MCP smoke test in CI; no model or network calls.
+- 🪶 **No hidden global changes.** No global install, no PATH or profile edits. Client configs and skill links change only when you run the installer, with a backup of every file it edits.
 
 ## Quick start
 
@@ -257,7 +257,7 @@ What is enforced in code and what is only guidance:
 - **Human decisions stay human.** Trust, login, credential and approval prompts are shown to you verbatim. One-time approval is chosen only when an explicit policy you gave covers that exact action; persistent "always allow" is never chosen unasked.
 - **Terminal output is untrusted.** Text printed by programs, files and other agents is treated as data, never as instructions.
 - **`--cwd` is a default, not a jail.** Any session can start anywhere the user can.
-- **No silent global changes.** gentle-terminal never edits global settings, shell profiles, `PATH`, credentials or client configs on its own.
+- **No silent global changes.** gentle-terminal never edits global settings, shell profiles, `PATH` or credentials. Client configs and skill links are changed only by `node install.mjs` when you run it; nothing runs it automatically (no npm lifecycle scripts, no background updates).
 - **No process-name kills.** Only sessions the agent created are destroyed, and only when idle. Upstream handles stdin disconnect and SIGINT/SIGTERM/SIGHUP, but forced termination, detached grandchildren and external programs can escape graceful disposal; uncertain cleanup is reported.
 - **Attach endpoints.** On Unix they are sockets in a `0700` directory. On Windows they are named pipes whose default ACL was observed to grant Read to Everyone; on shared Windows hosts other local accounts may be able to read session output. See [SECURITY.md](SECURITY.md).
 - **Supply chain.** The runtime is pinned by version and SHA-512 integrity and installed with `--ignore-scripts`. `tests/pin.test.mjs` fails if the manifest, lockfile or installed version drift, or if any locked package loses its registry integrity.
