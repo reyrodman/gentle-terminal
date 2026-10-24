@@ -21,17 +21,17 @@
     <circle cx="24" cy="18" r="6" fill="#f87171"/>
     <circle cx="44" cy="18" r="6" fill="#fbbf24"/>
     <circle cx="64" cy="18" r="6" fill="#34d399"/>
-    <text x="540" y="23" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" fill="#94a3b8">session 1 · pwsh · /approved/workspace</text>
+    <text x="540" y="23" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" fill="#94a3b8">session 1 &#183; pwsh &#183; /approved/workspace</text>
     <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17">
       <text x="24" y="76" fill="#e2e8f0"><tspan fill="#34d399">$</tspan> codex "add a unit test for parseConfig"</text>
-      <text x="24" y="112" fill="#e2e8f0"><tspan fill="#fbbf24">Ï</tspan> Working (1m 42s · esc to interrupt)</text>
-      <text x="610" y="112" fill="#7dd3fc">’ timeout ` done: re-read, classify, wait</text>
+      <text x="24" y="112" fill="#e2e8f0"><tspan fill="#fbbf24">&#9679;</tspan> Working (1m 42s &#183; esc to interrupt)</text>
+      <text x="610" y="112" fill="#7dd3fc">&#8594; timeout &#8800; done: re-read, classify, wait</text>
       <text x="24" y="148" fill="#e2e8f0"><tspan fill="#f472b6">?</tspan> Allow running `npm test`?  1. Yes, once  2. Always</text>
-      <text x="610" y="148" fill="#7dd3fc">’ surfaced to you, never "Always" unasked</text>
-      <text x="24" y="184" fill="#e2e8f0"><tspan fill="#34d399"></tspan> Worked for 2m 14s</text>
-      <text x="610" y="184" fill="#7dd3fc">’ artifact inspected, test re-run by agent</text>
+      <text x="610" y="148" fill="#7dd3fc">&#8594; surfaced to you, never "Always" unasked</text>
+      <text x="24" y="184" fill="#e2e8f0"><tspan fill="#34d399">&#10003;</tspan> Worked for 2m 14s</text>
+      <text x="610" y="184" fill="#7dd3fc">&#8594; artifact inspected, test re-run by agent</text>
       <text x="24" y="220" fill="#e2e8f0"><tspan fill="#34d399">PASS</tspan> tests/parse-config.test.js   <tspan fill="#94a3b8">exit 0</tspan></text>
-      <text x="610" y="220" fill="#7dd3fc">’ /quit, exit code observed, session closed</text>
+      <text x="610" y="220" fill="#7dd3fc">&#8594; /quit, exit code observed, session closed</text>
     </g>
   </g>
 </svg>
