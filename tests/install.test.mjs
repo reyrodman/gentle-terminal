@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -229,6 +229,45 @@ test('no detected client creates nothing', t => {
   assert.equal(r.code, 0, r.out);
   assert.match(r.out, /No supported MCP client was found/);
   assert.deepEqual(readdirSync(m.home), []);
+});
+
+test('started through a linked folder, the installer still runs', t => {
+  const m = machine();
+  t.after(m.cleanup);
+  const real = join(m.home, 'real');
+  mkdirSync(real);
+  for (const f of ['install.mjs', 'package.json']) writeFileSync(join(real, f), readFileSync(join(root, f)));
+  const link = join(m.home, 'link');
+  symlinkSync(real, link, windows ? 'junction' : 'dir');
+  const r = spawnSync(process.execPath, [join(link, 'install.mjs'), '--help'], { encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /^Usage: node install\.mjs/);
+});
+
+test('--update on a branch other than the default one says what it follows, and refuses local changes', t => {
+  const m = machine();
+  t.after(m.cleanup);
+  const git = (cwd, ...args) => {
+    const r = spawnSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@t', ...args], { cwd, encoding: 'utf8' });
+    assert.equal(r.status, 0, r.stderr);
+  };
+  const seed = join(m.home, 'seed');
+  mkdirSync(seed);
+  for (const f of ['install.mjs', 'package.json']) writeFileSync(join(seed, f), readFileSync(join(root, f)));
+  git(m.home, 'init', '-q', '--bare', '-b', 'main', 'origin.git');
+  git(seed, 'init', '-q', '-b', 'main');
+  git(seed, 'add', '-A');
+  git(seed, 'commit', '-qm', 'v1');
+  git(seed, 'push', '-q', join(m.home, 'origin.git'), 'main');
+  git(m.home, 'clone', '-q', 'origin.git', 'clone');
+  const clone = join(m.home, 'clone');
+  git(clone, 'switch', '-q', '-c', 'feature');
+  git(clone, 'push', '-q', '-u', 'origin', 'feature');
+  writeFileSync(join(clone, 'package.json'), '{}');
+  const r = spawnSync(process.execPath, [join(clone, 'install.mjs'), '--update'], { encoding: 'utf8' });
+  assert.equal(r.status, 1, r.stdout + r.stderr);
+  assert.match(r.stdout, /on branch feature, which follows origin\/feature, not origin\/main/);
+  assert.match(r.stderr, /local changes/);
 });
 
 test('runtime status follows the lockfile', () => {

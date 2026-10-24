@@ -320,8 +320,8 @@ function planSkill(dir, mode) {
   let stat;
   try { stat = lstatSync(dest); } catch { /* missing */ }
   let target;
-  try { target = realpathSync(dest); } catch { /* missing or broken link */ }
-  const here = target !== undefined && target === realpathSync(root);
+  try { target = realpathSync.native(dest); } catch { /* missing or broken link */ }
+  const here = target !== undefined && target === realpathSync.native(root);
   const ourLink = stat?.isSymbolicLink() && (target === undefined || here || ownsFolder(target));
   if (mode === 'uninstall') {
     if (ourLink) return { status: 'removed', apply: () => removeLink(dest) };
@@ -423,13 +423,22 @@ function gitUpdate(args) {
   const git = (...a) => spawnSync('git', ['-C', root, ...a], { encoding: 'utf8' });
   const top = git('rev-parse', '--show-toplevel').stdout.trim();
   let isRoot = false;
-  try { isRoot = !!top && realpathSync(top) === realpathSync(root); } catch { /* not a checkout */ }
+  // The native resolver expands Windows 8.3 short names (RUNNER~1); git prints long ones.
+  try { isRoot = !!top && realpathSync.native(top) === realpathSync.native(root); } catch { /* not a checkout */ }
   // A release folder unpacked inside some other repository must not pull that repository.
   if (!isRoot) {
     throw new Error('--update needs a git checkout. Download the new release instead, then run node install.mjs');
   }
+  const upstream = git('rev-parse', '--abbrev-ref', '@{u}');
+  if (upstream.status !== 0) throw new Error('the current branch has no upstream; run git pull yourself');
+  const follows = upstream.stdout.trim();
+  const remoteDefault = git('rev-parse', '--abbrev-ref', `${follows.split('/')[0]}/HEAD`).stdout.trim();
+  if (remoteDefault && remoteDefault !== follows) {
+    const branch = git('rev-parse', '--abbrev-ref', 'HEAD').stdout.trim();
+    console.log(`Note: this checkout is on branch ${branch}, which follows ${follows}, not ${remoteDefault}. ` +
+      `For released versions run: git switch ${remoteDefault.slice(remoteDefault.indexOf('/') + 1)}`);
+  }
   if (git('status', '--porcelain', '--untracked-files=no').stdout.trim()) throw new Error('this checkout has local changes; commit or stash them, then run --update again');
-  if (git('rev-parse', '--abbrev-ref', '@{u}').status !== 0) throw new Error('the current branch has no upstream; run git pull yourself');
   const fetch = git('fetch', '--quiet');
   if (fetch.status !== 0) throw new Error(`git fetch failed: ${fetch.stderr.trim()}`);
   const before = git('rev-parse', '--short', 'HEAD').stdout.trim();
@@ -554,7 +563,9 @@ async function main(argv) {
   return failed ? 1 : manual ? 2 : 0;
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+// Node resolves links in import.meta.url but not in argv[1] (macOS /var is a link to /private/var).
+const started = (() => { try { return realpathSync(resolve(process.argv[1])); } catch { return undefined; } })();
+if (started === fileURLToPath(import.meta.url)) {
   main(process.argv.slice(2)).then(code => { process.exitCode = code; },
     error => { console.error(`gentle-terminal install: ${error.message}`); process.exitCode = 1; });
 }

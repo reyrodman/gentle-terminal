@@ -18,7 +18,7 @@ Load this when the server runs on Windows or a session uses PowerShell or cmd. B
   - or run the work as a command session (`command`): its wait ends on the real process exit and reports the exit code;
   - when no marker is possible, pass a larger `quietMs` (for example 10000): the fallback waits for `max(quietMs, 2000)` ms of silence. It is still a guess.
 - Process-tree detection and shell-integration markers (OSC 133) would need changes in the pinned terminal-use engine or the user's PowerShell profile; gentle-terminal does neither.
-- A quiet PowerShell prompt is not proof the previous command finished: a native program may still be starting.
+- A quiet PowerShell prompt is not proof the previous command finished: a native program may still be starting. The screen returned with a guess can even show a bare prompt (`PS C:\path> ` with the cursor after it, the typed command gone) while the command is still running, so the screen cannot confirm a guess; only a fresh marker or an exit status can.
 
 ## ConPTY timing
 
