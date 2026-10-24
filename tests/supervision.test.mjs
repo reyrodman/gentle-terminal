@@ -100,13 +100,15 @@ test('an inherited TERM=dumb never reaches sessions; an explicit session TERM wi
   const dumb = await startServer({ args: ['--cwd', scratch], env: { ...process.env, TERM: 'dumb' }, timeoutMs: 20000 });
   try {
     await dumb.initialize();
-    const show = windows ? "Write-Output ('TERM='+$env:TERM)" : 'printf "TERM=%s\\n" "$TERM"';
+    // Stay alive after printing: on Linux the final screen of a command that exits at once can miss its last output.
+    const show = windows ? "Write-Output ('TERM='+$env:TERM); Start-Sleep -Seconds 2" : 'printf "TERM=%s\\n" "$TERM"; sleep 2';
     // On Linux and macOS node-pty sets TERM from the PTY name (xterm-256color).
     for (const [env, expected] of [[undefined, 'xterm-256color'], [{ TERM: 'vt100' }, windows ? 'vt100' : 'xterm-256color']]) {
       const created = await dumb.tool('terminal_create', { command: show, ...(env && { env }) });
       const sessionId = sessionIdOf(created.text);
-      const end = await dumb.tool('terminal_wait', { sessionId, timeoutMs: 10000 });
-      assert.match(end.text, new RegExp(`^TERM=${expected}$`, 'm'));
+      const shown = await dumb.tool('terminal_wait', { sessionId, pattern: `^TERM=${expected}$`, timeoutMs: 10000 });
+      assert.match(shown.text, /^Pattern .* matched after/, shown.text);
+      assert.match((await dumb.tool('terminal_wait', { sessionId, timeoutMs: 10000 })).text, /exit code 0/);
       await dumb.tool('terminal_destroy', { sessionId });
     }
   } finally {

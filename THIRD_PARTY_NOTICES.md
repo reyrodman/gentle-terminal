@@ -1,7 +1,7 @@
 # Third-party notices
 
 gentle-terminal does not vendor third-party code. The runtime dependency below is
-installed per machine by `npm run setup` from the public npm registry, verified
+installed per machine by `npm run setup` or `node install.mjs` from the public npm registry, verified
 against the SHA-512 integrity recorded in [`runtime/package-lock.json`](runtime/package-lock.json).
 
 | Component | Version | License | Source |

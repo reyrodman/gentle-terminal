@@ -23,6 +23,7 @@ You can expect an acknowledgement within a few days and a status update once the
 gentle-terminal is intentionally **not a sandbox**: terminal sessions run with the privileges of the user who starts the MCP server. Reports that an agent can run commands the user could run are expected behavior. In scope:
 
 - The launcher executing anything other than the pinned upstream entry point
+- `install.mjs` changing anything other than gentle-terminal entries and skill links, losing data in a client config, or following links into folders it should not touch
 - Weaknesses in how the runtime pin or integrity is enforced
 - Skill or workflow guidance that would lead an agent to bypass approval prompts, persist approvals, or leak credentials
 - Private data or secrets shipped in the repository or packaged archive
@@ -46,6 +47,7 @@ gentle-terminal gives an AI agent the same terminal access as the user who start
 | Abandoned sessions and descendants | Disposal on disconnect and signals; `terminal_destroy` for owned sessions | Forced kills and detached grandchildren can survive |
 | Reading session output through attach endpoints | Unix: socket directory `0700`, socket `0600` | **Windows**: the named pipe `\\.\pipe\terminal-use-<pid>-<id>` was observed with the default DACL granting Read to Everyone and Anonymous Logon, and the server replays the screen to any client without a handshake. Cross-account access was not reproduced. Avoid shared Windows hosts or keep secrets off screen until upstream restricts the pipe ACL |
 | Tampered or substituted dependencies | Exact pin, SHA-512 integrity for all 25 locked packages, `--ignore-scripts`, Dependabot | The native `@lydell/node-pty` dependency is a prerelease (`1.2.0-beta.15`) chosen upstream |
+| Installer damaging client configs (`install.mjs`) | Runs only when the user starts it; touches only installed clients and only gentle-terminal entries; files with comments or unknown layouts are left untouched; timestamped backup, atomic write and read-back per file; skill links are never removed recursively; `--update` only fast-forwards its own checkout; `--dry-run`; `tests/install.test.mjs` against a temporary home | JSON files it rewrites are re-serialized (indentation, BOM and line endings kept; duplicate keys collapse). A client writing the same file at the same moment can overwrite the change: close clients first or rerun |
 | Secrets or private paths in the repository or archive | `files` allowlist and home-path scan in `tests/export.test.mjs` | Scan targets home-directory paths only |
 
 ## Safe testing
