@@ -10,6 +10,7 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ### Fixed
 
+- `references/windows.md`: the screen returned with a Windows wait guess can show a bare prompt while the command is still running (observed with `Start-Sleep -Seconds 6`), so only a fresh marker or an exit status confirms completion.
 - `npm run update` on a branch other than the remote's default branch now says which branch it follows and how to switch (`git switch main`), instead of silently staying on that branch.
 - Windows waits: `SKILL.md` now says up front that a shell-session `terminal_wait` without `pattern` ends after about 2 s of silence and labels the result a guess, so it means RUNNING, not done. `references/windows.md` explains why (no terminal process group on Windows) and the options: a fresh marker pattern, a command session, or a larger `quietMs`, which stretches the fallback window. A Windows-only E2E test pins this engine behavior. Reported from Antigravity CLI use; process-tree detection and OSC 133 markers were evaluated and left to the upstream engine, since they need engine or PowerShell-profile changes. `SKILL.md` grows from 6,272 to 6,421 bytes.
 
