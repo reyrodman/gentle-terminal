@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and ideas
+    url: https://github.com/reyrodman/gentle-terminal/discussions
+    about: Ask usage questions and share setups in Discussions.
+  - name: Security vulnerability
+    url: https://github.com/reyrodman/gentle-terminal/security/advisories/new
+    about: Report security issues privately, never in public issues.

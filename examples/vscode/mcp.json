@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "gentle-terminal": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["/absolute/path/to/gentle-terminal/launch.mjs", "--cwd", "${workspaceFolder}"]
+    }
+  }
+}

@@ -1,0 +1,4 @@
+# Merge into ~/.codex/config.toml
+[mcp_servers.gentle-terminal]
+command = "node"
+args = ["/absolute/path/to/gentle-terminal/launch.mjs", "--cwd", "/approved/workspace"]

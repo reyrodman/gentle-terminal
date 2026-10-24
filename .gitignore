@@ -1,0 +1,22 @@
+# Dependencies and caches (reinstall per OS/architecture)
+node_modules/
+.cache/
+.npm/
+
+# Local scratch, test fixtures and build output
+.test-runtime/
+dist/
+*.tgz
+*.log
+
+# Editor and OS noise
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local agent state (never publish)
+.engram/
+.atl/
+.env
+.env.*

@@ -1,0 +1,78 @@
+# Client-specific activation examples
+
+The portable contract is a stdio process: executable `node`, argument `launch.mjs` at its absolute path, and optional upstream arguments such as `--cwd`. MCP does **not** standardize a universal client configuration schema.
+
+Before activation, verify the installed client's documentation, supported MCP transport, configuration location, scope, trust rules and precedence. Request approval for the exact change. These examples are optional formats, not applied settings or integration test results. Replace paths and resolve `node` explicitly if needed. Keep spaces inside individual argument values; do not embed shell quoting.
+
+Ready-to-copy files live in [`examples/`](../examples/README.md).
+
+## Claude Code
+
+```text
+claude mcp add gentle-terminal --scope user -- node /absolute/path/to/gentle-terminal/launch.mjs
+```
+
+## Codex CLI
+
+Register with the CLI, or verify the installed version's TOML schema and edit `config.toml` yourself. Do not run registration commands on a user's behalf without approval.
+
+```text
+codex mcp add gentle-terminal -- node /absolute/path/to/gentle-terminal/launch.mjs
+```
+
+```toml
+[mcp_servers.gentle-terminal]
+command = "node"
+args = ["/absolute/path/to/gentle-terminal/launch.mjs", "--cwd", "/approved/workspace"]
+```
+
+## Cursor, Claude Desktop and other `mcpServers` clients
+
+Verify that the installed client supports this shape and determine its effective project/user scope before use:
+
+```json
+{
+  "mcpServers": {
+    "gentle-terminal": {
+      "command": "node",
+      "args": ["/absolute/path/to/gentle-terminal/launch.mjs", "--cwd", "/approved/workspace"]
+    }
+  }
+}
+```
+
+Do not assume adapter-specific fields or skill discovery behavior are universal.
+
+## VS Code
+
+```json
+{
+  "servers": {
+    "gentle-terminal": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["/absolute/path/to/gentle-terminal/launch.mjs"]
+    }
+  }
+}
+```
+
+## OpenCode
+
+Verify the installed version's local MCP schema and configuration scope. This format uses a command array, not a shell command string:
+
+```json
+{
+  "mcp": {
+    "gentle-terminal": {
+      "type": "local",
+      "command": ["node", "/absolute/path/to/gentle-terminal/launch.mjs", "--cwd", "/approved/workspace"],
+      "enabled": true
+    }
+  }
+}
+```
+
+## After an approved change
+
+Reload as the client requires, inspect MCP status, and perform a bounded probe. On Windows use absolute Windows paths; optionally pass `--shell` for an installed shell. Read [the skill](../SKILL.md) and its installed upstream skill through the client's supported mechanism. Tool availability alone neither loads the policy nor guarantees model competence. No automatic registration or real-agent task is part of the reusable smoke.

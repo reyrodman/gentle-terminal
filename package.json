@@ -1,0 +1,60 @@
+{
+  "name": "gentle-terminal",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Approval-first terminal control for AI coding agents: a pinned MCP launcher and Agent Skill that let Claude Code, Codex, Cursor and OpenCode drive real interactive shells, CLIs and TUIs safely.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "mcp-server",
+    "agent-skill",
+    "ai-agents",
+    "terminal",
+    "pty",
+    "tui",
+    "cli",
+    "claude-code",
+    "codex",
+    "cursor",
+    "opencode",
+    "terminal-automation",
+    "developer-tools"
+  ],
+  "homepage": "https://github.com/reyrodman/gentle-terminal#readme",
+  "bugs": {
+    "url": "https://github.com/reyrodman/gentle-terminal/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reyrodman/gentle-terminal.git"
+  },
+  "license": "MIT",
+  "author": "reyrodman (https://github.com/reyrodman)",
+  "type": "module",
+  "engines": { "node": ">=22.12.0" },
+  "scripts": {
+    "setup": "cd runtime && npm ci --ignore-scripts --no-audit --no-fund",
+    "start": "node launch.mjs",
+    "test": "node --test \"tests/*.test.mjs\"",
+    "smoke": "node smoke.mjs",
+    "verify": "node launch.mjs --version && npm test && npm run smoke"
+  },
+  "files": [
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md",
+    "SKILL.md",
+    "THIRD_PARTY_NOTICES.md",
+    "docs/assets/banner.svg",
+    "examples/",
+    "launch.mjs",
+    "references/clients.md",
+    "references/workflow.md",
+    "runtime/package-lock.json",
+    "runtime/package.json",
+    "smoke.mjs",
+    "tests/export.test.mjs",
+    "tests/launcher.test.mjs",
+    "tests/pin.test.mjs"
+  ]
+}
