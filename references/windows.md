@@ -13,7 +13,11 @@ Load this when the server runs on Windows or a session uses PowerShell or cmd. B
 
 ## Waiting
 
-- `terminal_wait` without a pattern cannot ask Windows who owns the terminal. In a shell session it falls back to about 2 s of silence and says the result is a guess. Use a pattern with a fresh marker, or a command session, whenever completion matters.
+- `terminal_wait` without a pattern cannot ask Windows who owns the terminal (Linux and macOS ask the kernel; Windows has no terminal process group). In a shell session it falls back to about 2 s of silence and says the result is a guess. Network calls, model inference, builds and installs are often silent for longer, so this regularly returns while the command is still running. Treat a guess as RUNNING and:
+  - wait for a fresh marker pattern (`^GT_<nonce>_EXIT=`) with a `timeoutMs` that fits the task; a timeout only means "not yet", so wait again;
+  - or run the work as a command session (`command`): its wait ends on the real process exit and reports the exit code;
+  - when no marker is possible, pass a larger `quietMs` (for example 10000): the fallback waits for `max(quietMs, 2000)` ms of silence. It is still a guess.
+- Process-tree detection and shell-integration markers (OSC 133) would need changes in the pinned terminal-use engine or the user's PowerShell profile; gentle-terminal does neither.
 - A quiet PowerShell prompt is not proof the previous command finished: a native program may still be starting.
 
 ## ConPTY timing

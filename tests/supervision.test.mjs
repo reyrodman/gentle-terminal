@@ -117,6 +117,23 @@ test('an inherited TERM=dumb never reaches sessions; an explicit session TERM wi
   }
 });
 
+test('Windows: a pattern-less wait in a shell session ends on a short silence and calls it a guess; the marker still decides', { skip: !windows && 'Windows-only fallback' }, async () => {
+  const sessionId = sessionIdOf(await call('terminal_create', { cwd: scratch }));
+  owned.add(sessionId);
+  await call('terminal_wait', { sessionId, pattern: '^PS .*> ?$', timeoutMs: 15000 });
+  const id = nonce();
+  await call('terminal_type', { sessionId, text: `Start-Sleep -Seconds 6; Write-Output ('GT_'+'${id}'+'_DONE')\n` });
+  const guess = await call('terminal_wait', { sessionId, timeoutMs: 15000 });
+  assert.match(guess, /guess/);
+  assert.doesNotMatch(guess, new RegExp(`^GT_${id}_DONE`, 'm'), 'the command was still running');
+  assert.match(await call('terminal_wait', { sessionId, pattern: `^GT_${id}_DONE`, timeoutMs: 15000 }), /matched/);
+  // A larger quietMs stretches that silence window: a 3 s pause no longer ends the wait.
+  const next = nonce();
+  await call('terminal_type', { sessionId, text: `Start-Sleep -Seconds 3; Write-Output ('GT_'+'${next}'+'_DONE')\n` });
+  assert.match(await call('terminal_wait', { sessionId, quietMs: 5000, timeoutMs: 20000 }), new RegExp(`^GT_${next}_DONE`, 'm'));
+  await destroy(sessionId);
+});
+
 test('a completion claim is not evidence: the claimed artifact can be missing', async () => {
   const { sessionId, cwd } = await open('false-success', 'false-success');
   await trust(sessionId);
