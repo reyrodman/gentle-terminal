@@ -20,6 +20,7 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ### Fixed
 
+- The TERM test no longer flakes on Linux: it reads the value while the command is still running instead of from the final screen, which can miss the last output when the PTY exit arrives first.
 - Documentation synced with 1.1.0: README skill size, test and ARM64 coverage, and architecture diagram; the pin-update checklist in `CONTRIBUTING.md` now includes `tests/guards.test.mjs`; `examples/prompts.md` reflects separate-`Enter` submission and unread menu defaults.
 
 ## [1.1.0] - 2026-10-24
