@@ -10,7 +10,7 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ### Changed
 
-- `SKILL.md` uses progressive disclosure: it no longer requires reading `README.md`, `references/workflow.md` and the upstream skill before acting. Text required before the first action drops from 34,301 to 6,093 bytes.
+- `SKILL.md` uses progressive disclosure: it no longer requires reading `README.md`, `references/workflow.md` and the upstream skill before acting. Text required before the first action drops from 34,301 to 6,272 bytes.
 - `references/workflow.md` is now the agent-supervision procedure, with versioned client signals including a delayed Codex CLI hooks menu and Claude Code first-run onboarding.
 - Documentation states that `--cwd` is only a default and separates controls enforced in code from Agent Skill guidance.
 
@@ -27,6 +27,7 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 - `launch.mjs` replaces an inherited empty or `dumb` `TERM` with `xterm-256color`, the terminal the emulator provides. Clients started from agent or IDE shells passed `TERM=dumb` to every session, and Codex CLI refused to start its TUI. A `TERM` given in `terminal_create` `env` still wins.
 - Agent supervision found in real Codex CLI 0.163.0 runs: tasks are typed without `\n` and submitted with one separate `Enter` (input boxes take a fast newline as pasted text), startup and follow-ups wait with `until: "quiet"` instead of on-screen wording, menus move with one `terminal_press` `count`, and a highlighted menu default (Codex's `Update now` runs a remote install script) is never accepted unread.
+- Findings from real OpenCode 2.1.4 and Antigravity CLI 1.4.5 runs: check the input box before `Enter` and keep `!`, `/`, `@` and `#` out of messages (OpenCode ran a message containing `!` as a shell command), confirm that an answer registered before answering a repeated prompt, and verify research content, not only that the file exists.
 
 ### Compatibility
 

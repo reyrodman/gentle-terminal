@@ -279,7 +279,7 @@ Windows 11 x64, Node 24.16, terminal-use 0.2.1, 15 runs (`npm run bench`); sizes
 | Metric | v1.0.0 | v1.1.0 | Note |
 |---|---|---|---|
 | Skill description (discovery, always in context) | 252 B | 349 B | +97 B: now also says when not to activate |
-| Skill text required before the first action | 34,301 B (~8.6k tokens) | 6,093 B (~1.5k tokens) | v1.0.0 required README, workflow and upstream skill up front |
+| Skill text required before the first action | 34,301 B (~8.6k tokens) | 6,272 B (~1.6k tokens) | v1.0.0 required README, workflow and upstream skill up front |
 | Run a command and read its exit status | 4 calls, 3,324 B, p50 534 ms | 1 call, 1,002 B, p50 314 ms | type + press + wait + read vs. one type with `\n` and a nonce marker |
 | `tools/list` | 24,828 B | 24,828 B | Upstream schema, unchanged |
 | Cold start to `initialize` result | p50 398 ms | p50 398 ms | Same launcher and runtime |
