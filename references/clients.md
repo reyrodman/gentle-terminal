@@ -4,7 +4,21 @@ The portable contract is a stdio process: executable `node`, argument `launch.mj
 
 Before activation, verify the installed client's documentation, supported MCP transport, configuration location, scope, trust rules and precedence. Request approval for the exact change. These examples are optional formats, not applied settings or integration test results. Replace paths and resolve `node` explicitly if needed. Keep spaces inside individual argument values; do not embed shell quoting.
 
-Ready-to-copy files live in [`examples/`](../examples/README.md).
+Ready-to-copy files live in [`examples/`](../examples/README.md). `node install.mjs` applies these formats for every client it finds after the user runs it; the rest of this page is for manual setup and review.
+
+User-level files the installer edits (`~` is the home folder; `<config>` is `%APPDATA%` on Windows, `~/Library/Application Support` on macOS and `$XDG_CONFIG_HOME` or `~/.config` on Linux):
+
+| Client | File | Key |
+|---|---|---|
+| Cursor IDE and `cursor-agent` | `~/.cursor/mcp.json` | `mcpServers` |
+| VS Code (and Insiders) | `<config>/Code/User/mcp.json` | `servers`, with `"type": "stdio"` |
+| Codex CLI, app and IDE extension | `~/.codex/config.toml` | `[mcp_servers.<name>]` |
+| Claude Code | `~/.claude.json` | `mcpServers` |
+| Claude Desktop | `<config>/Claude/claude_desktop_config.json` | `mcpServers` |
+| OpenCode | `$XDG_CONFIG_HOME` or `~/.config` `/opencode/opencode.json` | `mcp`, command array |
+| Antigravity IDE and `agy` | `~/.gemini/config/mcp_config.json` | `mcpServers` |
+| Gemini CLI | `~/.gemini/settings.json` | `mcpServers` |
+| Windsurf | `~/.codeium/windsurf/mcp_config.json` | `mcpServers` |
 
 Verification status (2026-10-24, Windows 11): the stdio server itself is verified by `npm run smoke` and the E2E suite with a test client. The configuration snippets below follow each client's documented format but were **not** integration-tested by applying them. Installed versions seen while observing startup behavior: Claude Code 2.1.296, Codex CLI 0.163.0, OpenCode 2.1.4. Cursor, VS Code and Claude Desktop were not verified.
 

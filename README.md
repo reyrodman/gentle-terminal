@@ -60,22 +60,37 @@ Most agent shell tools run one command and hand back its output. That breaks the
 ```bash
 git clone https://github.com/reyrodman/gentle-terminal.git
 cd gentle-terminal
-npm run setup      # installs the pinned runtime into ./runtime (no lifecycle scripts)
-npm run verify     # prints 0.2.1, runs the test suite and the MCP smoke test
+node install.mjs --dry-run   # shows which clients it found and what it would change
+node install.mjs             # installs the runtime and registers every client it found
 ```
 
-Expected tail of `npm run verify`:
+The installer is the same command for a first install and for every later update, and it is safe to run again:
+
+- **Finds your clients by their config files** and only touches clients that are installed. One file can serve several apps: Cursor IDE and `cursor-agent` share `~/.cursor/mcp.json`, the Codex CLI, app and IDE extension share `~/.codex/config.toml`, and the Antigravity IDE and `agy` share `~/.gemini/config/mcp_config.json`. VS Code, Claude Code, Claude Desktop, OpenCode, Gemini CLI and Windsurf have their own files.
+- **Adds or updates per client.** A missing entry is added as `gentle-terminal`. An entry that already runs a gentle-terminal `launch.mjs` from another folder (an older copy, a moved clone) is repointed in place, keeping its name and extra arguments such as `--cwd`. Other servers and settings are kept as they are.
+- **Never guesses.** A file with comments, invalid JSON or a TOML layout it does not recognize is left untouched and reported as a manual step (exit code 2).
+- **Backs up and checks.** Every changed file gets a `.bak-gentle-terminal-<time>` copy, is written atomically and read back. The pinned runtime is installed only when missing or out of date (the previous one is restored if `npm ci` fails), and the server must answer an MCP handshake before any client is touched.
+- **Links the skill** (a junction on Windows, a symlink elsewhere) into each client's user skills folder: `~/.agents/skills` (Codex, VS Code, Cursor), `~/.claude/skills`, `~/.config/opencode/skills`, `~/.gemini/config/skills` and `~/.gemini/skills`. An existing folder with that name is never replaced.
+
+Restart or reload the clients it lists at the end. Other options: `--only cursor,codex`, `--skip vscode`, `--node <path>`, `--uninstall`, `--help`.
+
+### Updating
+
+```bash
+npm run update     # = node install.mjs --update
+```
+
+It fast-forwards this git checkout (it refuses local changes, a diverged branch or a folder that is not its own git checkout), then runs the installer from the new code, which updates the runtime and every client. Nothing updates in the background: you decide when a new version runs.
+
+To check the bundle itself, `npm run verify` prints 0.2.1, runs the test suite and the MCP smoke test. Expected tail:
 
 ```text
 PASS: persistent variable, typed text, Enter, read, exit 7, destroy, disconnect; server exit=0 stderr=""; owned shell gone.
 ```
 
-> [!TIP]
-> Clone straight into your agent's skills folder so the skill and the MCP server live in one place, for example `~/.codex/skills/gentle-terminal`, `~/.claude/skills/gentle-terminal` or `~/.cursor/skills/gentle-terminal`. Keep the folder name `gentle-terminal`: strict Agent Skills loaders require it to match the skill `name`. Check your client's documentation for its exact skill discovery path.
+## Connect your MCP client manually
 
-## Connect your MCP client
-
-gentle-terminal is a standard **stdio** MCP server: command `node`, argument the absolute path to `launch.mjs`.
+`node install.mjs` does this for you. To do it by hand: gentle-terminal is a standard **stdio** MCP server, command `node`, argument the absolute path to `launch.mjs`. Run `npm run setup` once to install the pinned runtime.
 
 <details open>
 <summary><b>Claude Code</b></summary>
@@ -121,7 +136,7 @@ Files: [`examples/cursor/mcp.json`](examples/cursor/mcp.json), [`examples/claude
 <details>
 <summary><b>VS Code</b></summary>
 
-See [`examples/vscode/mcp.json`](examples/vscode/mcp.json) (place it in `.vscode/mcp.json`).
+See [`examples/vscode/mcp.json`](examples/vscode/mcp.json): place it in `.vscode/mcp.json` for one workspace, or merge its `servers` into your user `mcp.json` (`Code/User/mcp.json`) for all of them.
 </details>
 
 <details>
@@ -292,7 +307,7 @@ The call-economy row measures the guidance, not a server change: the after-colum
 
 ```bash
 npm pack --dry-run --json --ignore-scripts   # inspect the exact allowlisted file list
-npm pack --ignore-scripts                    # creates gentle-terminal-1.1.0.tgz
+npm pack --ignore-scripts                    # creates gentle-terminal-1.2.0.tgz
 ```
 
 The package is `private`, so it can be packed but not published to npm by accident. The `files` allowlist excludes installed modules, caches and scratch data, and the export test scans every packed file for home-directory paths.
@@ -302,6 +317,7 @@ The package is `private`, so it can be packed but not published to npm by accide
 ```text
 gentle-terminal/
 ├── SKILL.md                 # Agent Skill: hard rules, state table, efficient loop, on-demand index
+├── install.mjs              # Installs/updates the runtime, MCP entries and skill links for every client found
 ├── launch.mjs               # Same-process launcher for the pinned MCP server
 ├── smoke.mjs                # Deterministic MCP stdio smoke test
 ├── references/              # Loaded on demand
