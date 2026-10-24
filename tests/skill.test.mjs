@@ -54,7 +54,8 @@ test('safety rules survive any token optimization', () => {
     'no kill by name': /never kill by process name/i,
     'shell-correct syntax': /actual shell/,
     'agent input boxes submit with a separate Enter': /Agent input boxes[^\n]*type without it, then `terminal_press` `Enter` once/,
-    'wording-free waits': /until: "quiet"/
+    'wording-free waits': /until: "quiet"/,
+    'a Windows pattern-less wait is a guess': /Windows[^\n]*without `pattern`[^\n]*guess[^\n]*RUNNING/
   };
   for (const [rule, pattern] of Object.entries(required)) assert.match(body, pattern, rule);
   for (const state of ['STARTING', 'READY', 'RUNNING', 'AWAITING_HUMAN', 'AWAITING_PROGRAM_INPUT', 'IDLE', 'COMPLETED', 'FAILED', 'EXITED', 'UNKNOWN', 'RECOVERING']) {

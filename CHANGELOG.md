@@ -6,6 +6,10 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixed
+
+- Windows waits: `SKILL.md` now says up front that a shell-session `terminal_wait` without `pattern` ends after about 2 s of silence and labels the result a guess, so it means RUNNING, not done. `references/windows.md` explains why (no terminal process group on Windows) and the options: a fresh marker pattern, a command session, or a larger `quietMs`, which stretches the fallback window. A Windows-only E2E test pins this engine behavior. Reported from Antigravity CLI use; process-tree detection and OSC 133 markers were evaluated and left to the upstream engine, since they need engine or PowerShell-profile changes. `SKILL.md` grows from 6,272 to 6,421 bytes.
+
 ## [1.2.0] - 2026-10-24
 
 ### Added

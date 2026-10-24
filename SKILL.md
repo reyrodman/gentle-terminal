@@ -43,7 +43,7 @@ Classify after every tool response that returns a screen. Re-read only when the 
 3. Prove completion with a fresh marker the echoed command cannot match: split the literal and use a new nonce each time, then wait for `^GT_<nonce>_EXIT=` only if the response did not already show it.
    - PowerShell, after a native program: `; Write-Output ('GT_'+'k3x9'+'_EXIT='+$LASTEXITCODE)`. After cmdlets use `$?` (True/False); `$LASTEXITCODE` keeps the last native program's value or is empty.
    - POSIX: `; printf 'GT_%s_EXIT=%s\n' k3x9 "$?"`
-4. Wait patterns must match completion **and** prompt signals, and nothing already on screen; old text satisfies a pattern instantly. When no such pattern exists (TUI startup, agent follow-ups), wait with `until: "quiet"` and `quietMs` 3000: spinners and timers keep it waiting, and any stop returns a screen to classify. Use `terminal_read` with `rows` for a tail, `page` for history, `terminal_screenshot` only when color or layout decides the state.
+4. Wait patterns must match completion **and** prompt signals, and nothing already on screen; old text satisfies a pattern instantly. When no such pattern exists (TUI startup, agent follow-ups), wait with `until: "quiet"` and `quietMs` 3000: spinners and timers keep it waiting, and any stop returns a screen to classify. On Windows a shell-session wait without `pattern` ends after ~2 s of silence and says it is a guess: that is RUNNING, not done; wait for the marker. Use `terminal_read` with `rows` for a tail, `page` for history, `terminal_screenshot` only when color or layout decides the state.
 
 ## Load on demand
 | Need | Read |
