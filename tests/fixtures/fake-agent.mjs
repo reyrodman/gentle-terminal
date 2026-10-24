@@ -65,6 +65,10 @@ if (scenario === 'alt') {
 if (scenario === 'flood') {
   for (let i = 1; i <= 3000; i++) out(`row ${i} ñ 漢字 ü\n`);
   out('FLOOD_DONE\n');
+  // On Linux the PTY can report exit before its last output reaches the
+  // emulator; this scenario tests long output, not that race.
+  await new Promise(resolve => process.stdout.write('', resolve));
+  await sleep(500);
   process.exit(0);
 }
 

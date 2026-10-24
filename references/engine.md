@@ -22,7 +22,7 @@ Upstream detail worth loading on demand only:
 ## terminal_wait
 
 - No pattern, shell session: waits until the shell owns the terminal again and output is quiet. On Windows ownership cannot be checked; it falls back to about 2 s of silence and labels the result a guess.
-- No pattern, command session: waits for the program to exit and reports its exit code.
+- No pattern, command session: waits for the program to exit and reports its exit code. On Linux, a program that prints heavily right before exiting can lose its last lines from the final screen (observed in CI with 3,000 rows). Take completion from the exit code and from artifacts, not from the final screen's last line.
 - `pattern`: JavaScript regex, multiline (`^`/`$` per line), trailing spaces trimmed, `(?i)` prefix for case-insensitive. Searched on the screen plus 200 rows of scrollback. Text already there matches immediately.
 - `until: "quiet"`: returns after `quietMs` of silence; never returns while a program keeps printing. It needs no wording, so it is the robust choice for TUI startup and agent follow-ups; animated spinners and elapsed timers keep it waiting.
 - `timeoutMs` defaults to 30 s, max 10 min. A timeout is a normal response, not an error.
