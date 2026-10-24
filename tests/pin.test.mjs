@@ -11,3 +11,16 @@ test('manifest, lock integrity and installed upstream version match the approved
   assert.equal(locked.integrity, integrity);
   assert.equal(json('node_modules/terminal-use/package.json').version, '0.2.1');
 });
+test('every locked package is a registry tarball with SHA-512 integrity and no install scripts', () => {
+  const entries = Object.entries(json('package-lock.json').packages).filter(([path]) => path !== '');
+  assert.ok(entries.length > 0);
+  for (const [path, meta] of entries) {
+    assert.match(meta.resolved, /^https:\/\/registry\.npmjs\.org\/.+\.tgz$/, path);
+    assert.match(meta.integrity, /^sha512-[A-Za-z0-9+/]+={0,2}$/, path);
+    assert.equal(meta.hasInstallScript, undefined, `${path} declares install scripts`);
+  }
+  const prebuilt = new Set(entries.map(([path]) => path));
+  for (const target of ['win32-x64', 'win32-arm64', 'linux-x64', 'linux-arm64', 'darwin-x64', 'darwin-arm64']) {
+    assert.ok(prebuilt.has(`node_modules/@lydell/node-pty-${target}`), `node-pty prebuilt ${target}`);
+  }
+});

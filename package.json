@@ -37,6 +37,7 @@
     "start": "node launch.mjs",
     "test": "node --test \"tests/*.test.mjs\"",
     "smoke": "node smoke.mjs",
+    "bench": "node bench/bench.mjs",
     "verify": "node launch.mjs --version && npm test && npm run smoke"
   },
   "files": [
@@ -45,6 +46,7 @@
     "README.md",
     "SKILL.md",
     "THIRD_PARTY_NOTICES.md",
+    "bench/bench.mjs",
     "docs/assets/banner.svg",
     "examples/",
     "launch.mjs",
@@ -54,7 +56,11 @@
     "runtime/package.json",
     "smoke.mjs",
     "tests/export.test.mjs",
+    "tests/fixtures/fake-agent.mjs",
+    "tests/guards.test.mjs",
+    "tests/helpers/mcp-client.mjs",
     "tests/launcher.test.mjs",
-    "tests/pin.test.mjs"
+    "tests/pin.test.mjs",
+    "tests/supervision.test.mjs"
   ]
 }
