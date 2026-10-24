@@ -117,6 +117,49 @@ test('a client installed after the first run is added on the next run, existing 
   assert.equal(realpathSync(join(m.home, '.agents/skills/gentle-terminal')), realpathSync(root));
 });
 
+test('Claude Code project-scope entries are repointed, never added, and removed on uninstall', t => {
+  const m = machine();
+  t.after(m.cleanup);
+  const old = m.file('old/gentle-terminal/package.json', JSON.stringify({ name: 'gentle-terminal' }));
+  const oldLaunch = join(old, '..', 'launch.mjs');
+  const claude = m.file('.claude.json', JSON.stringify({ projects: {
+    'C:/work': { mcpServers: { 'gentle-terminal': { type: 'stdio', command: 'node', args: [oldLaunch], env: {} } } },
+    'C:/other': { mcpServers: { other } }
+  } }));
+  const r = m.run('--only', 'claude-code');
+  assert.equal(r.code, 0, r.out);
+  assert.match(r.out, /Updating existing installation:/);
+  const data = json(claude);
+  assert.deepEqual(data.projects['C:/work'].mcpServers['gentle-terminal'].args, [launcher]);
+  assert.deepEqual(data.projects['C:/other'].mcpServers, { other });
+  assert.deepEqual(data.mcpServers['gentle-terminal'].args, [launcher]);
+  assert.equal(m.run('--uninstall', '--only', 'claude-code').code, 0);
+  const after = json(claude);
+  assert.deepEqual(after.projects['C:/work'].mcpServers, {});
+  assert.deepEqual(after.projects['C:/other'].mcpServers, { other });
+  assert.deepEqual(after.mcpServers, {});
+});
+
+test('uninstall keeps comments that belong to the next TOML table', t => {
+  const m = machine();
+  t.after(m.cleanup);
+  const tail = '# about projects\n[projects.\'/work\']\ntrust_level = "trusted"\n';
+  const codex = m.file('.codex/config.toml', `[mcp_servers.gentle-terminal]\ncommand = 'node'\nargs = ['${launcher}']\n\n${tail}`);
+  const r = m.run('--uninstall', '--only', 'codex');
+  assert.equal(r.code, 0, r.out);
+  assert.equal(readFileSync(codex, 'utf8'), tail);
+});
+
+test('CODEX_HOME moves the Codex config', t => {
+  const m = machine();
+  t.after(m.cleanup);
+  const custom = m.file('codex-home/config.toml', '');
+  const r = spawnSync(process.execPath, [installer, '--only', 'codex'], { env: { ...process.env, HOME: m.home, USERPROFILE: m.home, CODEX_HOME: join(m.home, 'codex-home') }, encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stdout);
+  assert.match(readFileSync(custom, 'utf8'), /\[mcp_servers\.gentle-terminal\]/);
+  assert.ok(!existsSync(join(m.home, '.codex')));
+});
+
 test('files it cannot edit safely are reported for a manual step and left byte-for-byte unchanged', t => {
   const m = machine();
   t.after(m.cleanup);

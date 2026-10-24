@@ -12,8 +12,8 @@ User-level files the installer edits (`~` is the home folder; `<config>` is `%AP
 |---|---|---|
 | Cursor IDE and `cursor-agent` | `~/.cursor/mcp.json` | `mcpServers` |
 | VS Code (and Insiders) | `<config>/Code/User/mcp.json` | `servers`, with `"type": "stdio"` |
-| Codex CLI, app and IDE extension | `~/.codex/config.toml` | `[mcp_servers.<name>]` |
-| Claude Code | `~/.claude.json` | `mcpServers` |
+| Codex CLI, app and IDE extension | `$CODEX_HOME` or `~/.codex` `/config.toml` | `[mcp_servers.<name>]` |
+| Claude Code | `~/.claude.json` | `mcpServers`; existing gentle-terminal entries under `projects.<path>.mcpServers` (the default `claude mcp add` scope) are repointed too |
 | Claude Desktop | `<config>/Claude/claude_desktop_config.json` | `mcpServers` |
 | OpenCode | `$XDG_CONFIG_HOME` or `~/.config` `/opencode/opencode.json` | `mcp`, command array |
 | Antigravity IDE and `agy` | `~/.gemini/config/mcp_config.json` | `mcpServers` |

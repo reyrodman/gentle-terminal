@@ -17,7 +17,7 @@ const launcher = join(root, 'launch.mjs');
 const SERVER = 'gentle-terminal';
 const OWN_PACKAGES = new Set(['gentle-terminal', 'terminal-session-control']);
 const windows = process.platform === 'win32';
-const stamp = new Date().toISOString().replace(/\D/g, '').slice(0, 14);
+const stamp = new Date().toISOString().replace(/\D/g, '').slice(0, 17);
 
 const HELP = `Usage: node install.mjs [options]
 
@@ -34,7 +34,7 @@ the ones that already have it. Safe to run again: unchanged clients are left alo
 
 Clients: CLIENT_IDS
 Each changed config file is backed up next to it as <file>.bak-gentle-terminal-<time>.
-Exit codes: 0 done, 1 failed, 2 done but some clients need a manual step.`;
+Exit codes: 0 done, 1 failed or invalid usage, 2 done but some clients need a manual step.`;
 
 const isLaunchPath = value => typeof value === 'string' && /(^|[\\/])launch\.mjs$/i.test(value);
 const isNodeCommand = value => typeof value === 'string' && /(^|[\\/])node(\.exe)?$/i.test(value);
@@ -50,6 +50,7 @@ function paths() {
 function clientTable({ home, config, appData }, nodeCommand) {
   const standard = () => ({ command: nodeCommand, args: [launcher] });
   const gemini = join(home, '.gemini');
+  const codexHome = process.env.CODEX_HOME || join(home, '.codex');
   const opencodeDir = join(config, 'opencode');
   const opencodeFile = existsSync(join(opencodeDir, 'opencode.jsonc')) && !existsSync(join(opencodeDir, 'opencode.json'))
     ? join(opencodeDir, 'opencode.jsonc') : join(opencodeDir, 'opencode.json');
@@ -57,8 +58,8 @@ function clientTable({ home, config, appData }, nodeCommand) {
     { id: 'cursor', name: 'Cursor (IDE and cursor-agent)', detect: [join(home, '.cursor')], file: join(home, '.cursor', 'mcp.json'), key: 'mcpServers', entry: standard },
     { id: 'vscode', name: 'VS Code', detect: [join(appData, 'Code', 'User')], file: join(appData, 'Code', 'User', 'mcp.json'), key: 'servers', entry: () => ({ type: 'stdio', ...standard() }) },
     { id: 'vscode-insiders', name: 'VS Code Insiders', detect: [join(appData, 'Code - Insiders', 'User')], file: join(appData, 'Code - Insiders', 'User', 'mcp.json'), key: 'servers', entry: () => ({ type: 'stdio', ...standard() }) },
-    { id: 'codex', name: 'Codex (CLI, app and IDE extension)', detect: [join(home, '.codex')], file: join(home, '.codex', 'config.toml'), format: 'toml', entry: standard },
-    { id: 'claude-code', name: 'Claude Code', detect: [join(home, '.claude.json')], file: join(home, '.claude.json'), key: 'mcpServers', entry: () => ({ type: 'stdio', ...standard(), env: {} }) },
+    { id: 'codex', name: 'Codex (CLI, app and IDE extension)', detect: [codexHome], file: join(codexHome, 'config.toml'), format: 'toml', entry: standard },
+    { id: 'claude-code', name: 'Claude Code', detect: [join(home, '.claude.json')], file: join(home, '.claude.json'), key: 'mcpServers', projectScopes: true, entry: () => ({ type: 'stdio', ...standard(), env: {} }) },
     { id: 'claude-desktop', name: 'Claude Desktop', detect: [join(appData, 'Claude')], file: join(appData, 'Claude', 'claude_desktop_config.json'), key: 'mcpServers', entry: standard },
     { id: 'opencode', name: 'OpenCode', detect: [opencodeDir], file: opencodeFile, key: 'mcp', entry: () => ({ type: 'local', command: [nodeCommand, launcher], enabled: true }) },
     { id: 'antigravity', name: 'Antigravity (IDE and agy CLI)', detect: ['config', 'antigravity', 'antigravity-cli'].map(d => join(gemini, d)), file: join(gemini, 'config', 'mcp_config.json'), key: 'mcpServers', entry: standard },
@@ -133,32 +134,35 @@ function planJson(client, mode, nodeCommand) {
   const read = readJson(client.file);
   if (read.error) return { status: 'manual', detail: `${client.file}: ${read.error}` };
   const data = structuredClone(read.data);
-  if (data[client.key] !== undefined && (typeof data[client.key] !== 'object' || Array.isArray(data[client.key]) || data[client.key] === null)) {
+  const isMap = value => !!value && typeof value === 'object' && !Array.isArray(value);
+  if (data[client.key] !== undefined && !isMap(data[client.key])) {
     return { status: 'manual', detail: `${client.file}: "${client.key}" is not an object; edit it by hand` };
   }
+  const commandArray = client.key === 'mcp';
+  const oursIn = map => Object.keys(map).filter(name => isOurs(name, map[name]));
+  // Claude Code project servers override user ones; existing entries there are repointed, never added.
+  const scoped = client.projectScopes && isMap(data.projects)
+    ? Object.values(data.projects).filter(p => isMap(p) && isMap(p.mcpServers)).map(p => p.mcpServers) : [];
   const servers = data[client.key] ?? {};
-  const ours = Object.keys(servers).filter(name => isOurs(name, servers[name]));
-  let status;
-  if (mode === 'uninstall') {
-    if (!ours.length) return { status: 'absent', had: false };
-    for (const name of ours) delete servers[name];
-    status = 'removed';
-  } else if (!ours.length) {
-    servers[SERVER] = client.entry();
-    status = 'added';
-  } else {
-    for (const name of ours) servers[name] = retarget(servers[name], nodeCommand, client.key === 'mcp');
-    status = ours.every(name => isDeepStrictEqual(servers[name], read.data[client.key][name])) ? 'up to date' : 'updated';
-  }
-  data[client.key] = servers;
-  const names = ours.length ? ours : [SERVER];
-  return {
-    status, had: ours.length > 0, names,
-    text: status === 'up to date' ? undefined : writeJsonText(data, read.style),
-    check: text => {
-      const after = JSON.parse(text.replace(/^\uFEFF/, ''))[client.key] ?? {};
-      return mode === 'uninstall' ? names.every(n => !(n in after)) : names.every(n => isDeepStrictEqual(after[n], servers[n]));
+  const ours = oursIn(servers);
+  const had = ours.length > 0 || scoped.some(map => oursIn(map).length > 0);
+  for (const map of [servers, ...scoped]) {
+    for (const name of oursIn(map)) {
+      if (mode === 'uninstall') delete map[name];
+      else map[name] = retarget(map[name], nodeCommand, commandArray);
     }
+  }
+  if (mode !== 'uninstall') {
+    if (!ours.length) servers[SERVER] = client.entry();
+    data[client.key] = servers;
+  }
+  const changed = !isDeepStrictEqual(data, read.data);
+  const status = mode === 'uninstall' ? (changed ? 'removed' : 'absent')
+    : !ours.length ? 'added' : changed ? 'updated' : 'up to date';
+  return {
+    status, had,
+    text: changed ? writeJsonText(data, read.style) : undefined,
+    check: text => isDeepStrictEqual(JSON.parse(text.replace(/^\uFEFF/, '')), data)
   };
 }
 
@@ -233,7 +237,15 @@ function planToml(client, mode, nodeCommand) {
   let status;
   if (mode === 'uninstall') {
     if (!ours.length) return { status: 'absent', had: false };
-    next = next.filter((_, i) => !inside.has(i));
+    // Comments just above the next header belong to that table; the blank lines after our keys go with us.
+    const drop = new Set();
+    for (const t of ourTables) {
+      let end = t.end;
+      while (end > t.start + 1 && /^\s*(#.*)?$/.test(lines[end - 1])) end--;
+      while (end < t.end && !lines[end].trim()) end++;
+      for (let k = t.start; k < end; k++) drop.add(k);
+    }
+    next = next.filter((_, i) => !drop.has(i));
     status = 'removed';
   } else if (!ours.length) {
     while (next.length && next.at(-1) === '') next.pop();
@@ -280,12 +292,18 @@ function writeConfig(file, text) {
     copyFileSync(target, backup);
   }
   const tmp = `${target}.gentle-terminal-${process.pid}.tmp`;
-  writeFileSync(tmp, text);
-  try { renameSync(tmp, target); }
-  catch (error) {
-    // A client holding the file open can block the rename on Windows.
-    if (!['EPERM', 'EBUSY', 'EACCES'].includes(error.code)) { rmSync(tmp, { force: true }); throw error; }
-    writeFileSync(target, text);
+  try {
+    writeFileSync(tmp, text);
+    try { renameSync(tmp, target); }
+    catch (error) {
+      // A client holding the file open can block the rename on Windows.
+      if (!['EPERM', 'EBUSY', 'EACCES'].includes(error.code)) throw error;
+      writeFileSync(target, text);
+    }
+  } catch (error) {
+    if (backup) rmSync(backup, { force: true });
+    throw error;
+  } finally {
     rmSync(tmp, { force: true });
   }
   return { target, backup };
@@ -454,6 +472,7 @@ async function main(argv) {
   const opts = parseArgs(argv, ids);
   if (opts.help) { console.log(HELP.replace('CLIENT_IDS', ids.join(', '))); return 0; }
   if (opts.update && !opts.dryRun) return gitUpdate(argv);
+  if (opts.update) console.log('Code: --update would fast-forward this checkout first (skipped in a dry run); the plan below is for the current code.');
   const mode = opts.uninstall ? 'uninstall' : 'install';
   const selected = clientTable(where, opts.node).filter(c => (!opts.only || opts.only.has(c.id)) && !opts.skip.has(c.id));
   const write = !opts.dryRun;
