@@ -231,6 +231,32 @@ test('no detected client creates nothing', t => {
   assert.deepEqual(readdirSync(m.home), []);
 });
 
+test('--update on a branch other than the default one says what it follows, and refuses local changes', t => {
+  const m = machine();
+  t.after(m.cleanup);
+  const git = (cwd, ...args) => {
+    const r = spawnSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@t', ...args], { cwd, encoding: 'utf8' });
+    assert.equal(r.status, 0, r.stderr);
+  };
+  const seed = join(m.home, 'seed');
+  mkdirSync(seed);
+  for (const f of ['install.mjs', 'package.json']) writeFileSync(join(seed, f), readFileSync(join(root, f)));
+  git(m.home, 'init', '-q', '--bare', '-b', 'main', 'origin.git');
+  git(seed, 'init', '-q', '-b', 'main');
+  git(seed, 'add', '-A');
+  git(seed, 'commit', '-qm', 'v1');
+  git(seed, 'push', '-q', join(m.home, 'origin.git'), 'main');
+  git(m.home, 'clone', '-q', 'origin.git', 'clone');
+  const clone = join(m.home, 'clone');
+  git(clone, 'switch', '-q', '-c', 'feature');
+  git(clone, 'push', '-q', '-u', 'origin', 'feature');
+  writeFileSync(join(clone, 'package.json'), '{}');
+  const r = spawnSync(process.execPath, [join(clone, 'install.mjs'), '--update'], { encoding: 'utf8' });
+  assert.equal(r.status, 1, r.stdout + r.stderr);
+  assert.match(r.stdout, /on branch feature, which follows origin\/feature, not origin\/main/);
+  assert.match(r.stderr, /local changes/);
+});
+
 test('runtime status follows the lockfile', () => {
   const lock = { packages: { '': {}, 'node_modules/a': { version: '1.0.0', integrity: 'x' }, 'node_modules/opt': { version: '1.0.0', optional: true } } };
   const same = { packages: { 'node_modules/a': { version: '1.0.0', integrity: 'x' } } };

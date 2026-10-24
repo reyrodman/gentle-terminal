@@ -50,7 +50,7 @@ Most agent shell tools run one command and hand back its output. That breaks the
 - 📌 **Pinned and verifiable.** Runtime locked to `terminal-use@0.2.1` with SHA-512 integrity, installed with `--ignore-scripts`; a test fails if the pin drifts.
 - 🧳 **Portable launcher.** One `node launch.mjs` entry point that works from any cwd and from paths with spaces, forwarding stdio, arguments and exit codes in the same process.
 - 🔌 **One command for every client.** `node install.mjs` registers or updates gentle-terminal in each installed client: Cursor, VS Code, Codex, Claude Code, Claude Desktop, OpenCode, Antigravity, Gemini CLI and Windsurf. Ready-to-copy configs are included for manual setup.
-- ✅ **Tested on Linux, macOS and Windows, x64 and ARM64.** 41 `node:test` tests, including E2E supervision against a simulated agent and the installer against a temporary home folder, plus a deterministic MCP smoke test in CI; no model or network calls.
+- ✅ **Tested on Linux, macOS and Windows, x64 and ARM64.** 43 `node:test` tests, including E2E supervision against a simulated agent and the installer against a temporary home folder, plus a deterministic MCP smoke test in CI; no model or network calls.
 - 🪶 **No hidden global changes.** No global install, no PATH or profile edits. Client configs and skill links change only when you run the installer, with a backup of every file it edits.
 
 ## Quick start
@@ -80,7 +80,7 @@ Restart or reload the clients it lists at the end. Other options: `--only cursor
 npm run update     # = node install.mjs --update
 ```
 
-It fast-forwards this git checkout (it refuses local changes, a diverged branch or a folder that is not its own git checkout), then runs the installer from the new code, which updates the runtime and every client. Nothing updates in the background: you decide when a new version runs.
+It fast-forwards this git checkout (it refuses local changes, a diverged branch or a folder that is not its own git checkout), then runs the installer from the new code, which updates the runtime and every client. It follows the branch you are on: releases land on `main`, and on any other branch it prints a note with the `git switch` command. Nothing updates in the background: you decide when a new version runs.
 
 To check the bundle itself, `npm run verify` prints 0.2.1, runs the test suite and the MCP smoke test. Expected tail:
 

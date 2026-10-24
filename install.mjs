@@ -428,8 +428,16 @@ function gitUpdate(args) {
   if (!isRoot) {
     throw new Error('--update needs a git checkout. Download the new release instead, then run node install.mjs');
   }
+  const upstream = git('rev-parse', '--abbrev-ref', '@{u}');
+  if (upstream.status !== 0) throw new Error('the current branch has no upstream; run git pull yourself');
+  const follows = upstream.stdout.trim();
+  const remoteDefault = git('rev-parse', '--abbrev-ref', `${follows.split('/')[0]}/HEAD`).stdout.trim();
+  if (remoteDefault && remoteDefault !== follows) {
+    const branch = git('rev-parse', '--abbrev-ref', 'HEAD').stdout.trim();
+    console.log(`Note: this checkout is on branch ${branch}, which follows ${follows}, not ${remoteDefault}. ` +
+      `For released versions run: git switch ${remoteDefault.slice(remoteDefault.indexOf('/') + 1)}`);
+  }
   if (git('status', '--porcelain', '--untracked-files=no').stdout.trim()) throw new Error('this checkout has local changes; commit or stash them, then run --update again');
-  if (git('rev-parse', '--abbrev-ref', '@{u}').status !== 0) throw new Error('the current branch has no upstream; run git pull yourself');
   const fetch = git('fetch', '--quiet');
   if (fetch.status !== 0) throw new Error(`git fetch failed: ${fetch.stderr.trim()}`);
   const before = git('rev-parse', '--short', 'HEAD').stdout.trim();
