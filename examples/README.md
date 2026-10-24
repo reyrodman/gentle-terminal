@@ -18,7 +18,7 @@ claude mcp add gentle-terminal --scope user -- node /absolute/path/to/gentle-ter
 Before you paste:
 
 1. Replace `/absolute/path/to/gentle-terminal` with the folder where you cloned this repository. On Windows, JSON needs escaped backslashes (`C:\\tools\\gentle-terminal\\launch.mjs`) or forward slashes (`C:/tools/gentle-terminal/launch.mjs`).
-2. Replace `/approved/workspace` with the only directory you want new sessions to start in, or drop the `--cwd` pair to inherit the client's working directory.
+2. Replace `/approved/workspace` with the directory new sessions should start in by default, or drop the `--cwd` pair to inherit the client's working directory. It is a default, not an access restriction: the agent can still pass any `cwd` per session.
 3. Check your client's current documentation: configuration locations and schemas change between versions.
 
 Then try the prompts in [`prompts.md`](prompts.md).

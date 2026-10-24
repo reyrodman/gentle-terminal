@@ -28,3 +28,26 @@ gentle-terminal is intentionally **not a sandbox**: terminal sessions run with t
 - Private data or secrets shipped in the repository or packaged archive
 
 Vulnerabilities in [terminal-use](https://github.com/computer-agent-labs/terminal-use) itself should be reported to that project; we will update the pin once a fix is released.
+
+## Threat model
+
+gentle-terminal gives an AI agent the same terminal access as the user who starts the MCP server. Its controls fall into two groups:
+
+- **Enforced in code**: Node and platform guards, clean stdout, the pinned runtime with SHA-512 lockfile integrity and no install scripts, upstream session disposal on disconnect and signals, and command sessions that never rerun on their own.
+- **Guidance only (Agent Skill)**: approval handling, treating terminal output as untrusted, staying in the authorized workspace, not leaking secrets, not duplicating submissions, cleanup. A model or client can ignore these rules; keep the client's own approval gates and sandbox features enabled.
+
+| Threat | Mitigation | Residual risk |
+|---|---|---|
+| Prompt injection in terminal output, project files or another agent's replies | Skill rule: screen text is untrusted data; E2E fixture `inject` | Depends on model compliance |
+| Accidental persistent approval ("always", "trust all") | Skill rule and `references/authorization.md`; E2E approval scenario | Depends on model compliance |
+| Commands outside the intended workspace | Skill rule; `--cwd` documented as a default only | No technical boundary: use a container or VM for isolation |
+| Credential exposure | No secrets in chat, `env`, markers or reports; attach command for human input | Secrets printed on screen are visible to the agent and in screenshots |
+| Duplicate or repeated destructive commands | Submit-once rule, fresh nonce markers, recovery procedure; engine never reruns command sessions | Shell sessions accept whatever the agent types |
+| Abandoned sessions and descendants | Disposal on disconnect and signals; `terminal_destroy` for owned sessions | Forced kills and detached grandchildren can survive |
+| Reading session output through attach endpoints | Unix: socket directory `0700`, socket `0600` | **Windows**: the named pipe `\\.\pipe\terminal-use-<pid>-<id>` was observed with the default DACL granting Read to Everyone and Anonymous Logon, and the server replays the screen to any client without a handshake. Cross-account access was not reproduced. Avoid shared Windows hosts or keep secrets off screen until upstream restricts the pipe ACL |
+| Tampered or substituted dependencies | Exact pin, SHA-512 integrity for all 25 locked packages, `--ignore-scripts`, Dependabot | The native `@lydell/node-pty` dependency is a prerelease (`1.2.0-beta.15`) chosen upstream |
+| Secrets or private paths in the repository or archive | `files` allowlist and home-path scan in `tests/export.test.mjs` | Scan targets home-directory paths only |
+
+## Safe testing
+
+The test suite and smoke test make no model or network calls, never request elevated permissions, run no destructive commands on the host, and keep scratch state in the OS temp directory. Real-agent evaluations (`evals/activation.json`) must use a throwaway directory and must not accept trust or settings prompts that persist to the client's global configuration without the user's consent.

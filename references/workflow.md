@@ -32,11 +32,12 @@ Hints observed on real clients, not contracts. Record the version; confirm on sc
 
 | Client (version, date, OS) | Working | Idle / done | Prompts seen | Natural exit |
 |---|---|---|---|---|
-| Codex CLI 0.163.0 (2026-10-22, Windows) | Activity lines until a `Worked for …` summary | Full footer with input prompt | Folder trust screen before the first prompt | `/quit`, prints `Shutting down`, exit 0 |
+| Codex CLI 0.163.0 (2026-10-22 and 2026-10-24, Windows) | Activity lines until a `Worked for …` summary | `› Ask Codex to do anything` with `? for shortcuts` | Folder trust screen before the first prompt. On 2026-10-24 the input prompt rendered first and about 3 s later a `Hooks need review` menu replaced it (`1. Review hooks` highlighted, `2. Trust all and continue`, `3. Continue without trusting`); `Ctrl+C` was ignored there | `/quit`, prints `Shutting down`, exit 0 |
+| Claude Code 2.1.296 (2026-10-24, Windows) | Not observed | Not observed | In a fresh PTY a first-run onboarding (`Let's get started.`, theme picker) appeared before any prompt; any choice is saved to the user's config | Not observed |
 | OpenCode 2.1.2 (2026-10-22, Windows) | `esc interrupt` hint | Idle footer, final report awaiting follow-up | Permission requests in the footer area | Natural exit through its menu |
 | Antigravity CLI `agy` 1.4.5 (2026-10-22, Windows) | Footer `esc to cancel`, `Generating...` | Footer `? for shortcuts` | `Do you trust the contents of this project?`, `Run this command?`, `Allow calling this tool?`, `Allow creation of this file?` | `/exit` or `/quit`, exit 0 |
 
-Clients not listed (including Claude Code and Cursor CLI) have no recorded signals here: start with generic patterns (`esc to interrupt|\(y/n\)|trust|Allow|Do you want`), read every screen, and stop at the first ambiguous prompt. Contribute observed signals with version, date and OS.
+Startup menus that save settings (onboarding, theme, hooks or folder trust) are AWAITING_HUMAN even when they look harmless. Clients not listed (including Cursor CLI) and unobserved columns have no recorded signals: start with generic patterns (`esc to interrupt|\(y/n\)|trust|Allow|Do you want`), read every screen, and stop at the first ambiguous prompt. Contribute observed signals with version, date and OS.
 
 ## Unknown or changed interface
 

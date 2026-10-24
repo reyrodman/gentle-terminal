@@ -44,8 +44,9 @@ Most agent shell tools run one command and hand back its output. That breaks the
 ## Features
 
 - 🖥️ **Real terminals, not command runners.** Full PTY with colors, cursor movement and alternate screen, readable as text or PNG screenshots (powered by terminal-use).
-- 🛡️ **Approval-first Agent Skill.** A compact [`SKILL.md`](SKILL.md) with hard rules, decision gates and an output contract that any skill-aware agent can load.
-- 🤖 **Supervise other coding agents.** A [state-based workflow](references/workflow.md) with observed working/idle/prompt signals for Codex CLI, OpenCode and Antigravity CLI.
+- 🛡️ **Approval-first Agent Skill.** A compact [`SKILL.md`](SKILL.md) (about 5.7 KB) with hard rules, an eleven-state decision table and an efficient call loop. Specialized guidance (authorization, recovery, Windows, engine limits, agent supervision) is loaded only when needed.
+- 🤖 **Supervise other coding agents.** A [state-based workflow](references/workflow.md) with versioned, observed signals for Codex CLI, OpenCode, Antigravity CLI and Claude Code startup.
+- 🧪 **Behavior pinned by tests.** A deterministic simulated agent exercises delayed trust overlays, approval menus, silent hangs, crashes, false completion claims, prompt injection and respawns through the real MCP server, without any model calls.
 - 📌 **Pinned and verifiable.** Runtime locked to `terminal-use@0.2.1` with SHA-512 integrity, installed with `--ignore-scripts`; a test fails if the pin drifts.
 - 🧳 **Portable launcher.** One `node launch.mjs` entry point that works from any cwd and from paths with spaces, forwarding stdio, arguments and exit codes in the same process.
 - 🔌 **Works with every stdio MCP client.** Ready-to-copy configs for Claude Code, Codex CLI, Cursor, VS Code, OpenCode and Claude Desktop.
@@ -70,7 +71,7 @@ PASS: persistent variable, typed text, Enter, read, exit 7, destroy, disconnect;
 ```
 
 > [!TIP]
-> Clone straight into your agent's skills folder so the skill and the MCP server live in one place, for example `~/.codex/skills/gentle-terminal`, `~/.claude/skills/gentle-terminal` or `~/.cursor/skills/gentle-terminal`. Check your client's documentation for its exact skill discovery path.
+> Clone straight into your agent's skills folder so the skill and the MCP server live in one place, for example `~/.codex/skills/gentle-terminal`, `~/.claude/skills/gentle-terminal` or `~/.cursor/skills/gentle-terminal`. Keep the folder name `gentle-terminal`: strict Agent Skills loaders require it to match the skill `name`. Check your client's documentation for its exact skill discovery path.
 
 ## Connect your MCP client
 
@@ -157,16 +158,17 @@ I'll decide what to squash.
 What a well-behaved supervised session looks like (tool calls from the agent's side):
 
 ```text
-terminal_create  { cwd: "/approved/workspace" }             -> Created session 1
-terminal_type    { sessionId: 1, text: "codex\n" }           -> trust screen detected
-  ⤷ human decision: "Do you trust the contents of this project?" shown to the user, agent waits
-terminal_type    { sessionId: 1, text: "add a unit test for parseConfig" }   (typed once)
-terminal_press   { sessionId: 1, key: "Enter" }
+terminal_create  { command: "codex", cwd: "/approved/workspace" }   -> Created session 1
+terminal_wait    { sessionId: 1, pattern: "(?i)trust|\\? for shortcuts", timeoutMs: 20000 }
+  ⤷ input box visible, but STARTING: re-read once -> a trust/hooks menu appeared later
+  ⤷ AWAITING_HUMAN: the exact menu is shown to the user, who answers "once" -> agent waits
+terminal_type    { sessionId: 1, text: "add a unit test for parseConfig\n" }  (submitted once)
 terminal_wait    { sessionId: 1, pattern: "Worked for|Allow|\\(y/n\\)", timeoutMs: 60000 }
   ⤷ timed out -> terminal_read -> "esc to interrupt" still visible -> state: working -> wait again
 terminal_wait    { ... }                                     -> "Worked for 2m 14s" -> state: idle
   ⤷ agent reads the new test file and runs it in a separate command session: exit 0
-terminal_type    { sessionId: 1, text: "/quit\n" }           -> exit code 0 observed
+terminal_type    { sessionId: 1, text: "/quit\n" }
+terminal_wait    { sessionId: 1 }                            -> command exited (exit code 0)
 terminal_destroy { sessionId: 1 }
 ```
 
@@ -187,7 +189,9 @@ flowchart LR
 
 1. **`launch.mjs`** checks Node (>= 22.12) and platform, then imports the official `terminal-use` binary **in the same process**, so arguments, stdio, signals and exit codes behave exactly as upstream. No child wrapper, no extra engine.
 2. **`runtime/`** holds a lockfile that pins `terminal-use@0.2.1` by registry integrity. Each machine installs its own platform-specific prebuilt binaries; `node_modules` is never shipped.
-3. **`SKILL.md`** and **`references/workflow.md`** encode the operating policy: classify the screen after every wait, stop at human decisions, verify artifacts before follow-ups, exit naturally and clean up owned sessions.
+3. **`SKILL.md`** encodes the operating policy: classify the screen into one of eleven states after every response, stop at human decisions, prove completion with fresh markers, verify artifacts before follow-ups, exit naturally and clean up owned sessions. The files in **`references/`** are read on demand only.
+
+The server also publishes the upstream `terminal-use` skill over MCP (`skills/list`) for hosts that support that extension. gentle-terminal's skill already covers routine use, so agents load the upstream text only for its key and TUI recipes ([details](references/engine.md#one-skill-not-two)).
 
 ### Tools exposed (from terminal-use)
 
@@ -206,7 +210,7 @@ All arguments after `launch.mjs` go straight to terminal-use:
 
 | Option | Default | Description |
 |---|---|---|
-| `--cwd <path>` | client's cwd | Working directory for new sessions. Set it to the approved workspace. |
+| `--cwd <path>` | client's cwd | Default working directory for new sessions. It is **not** an access boundary: `terminal_create` accepts any `cwd`, `shell`, `command` and `env` per session. |
 | `--shell <path>` | Windows PowerShell on Windows; `$SHELL` or `/bin/bash` elsewhere | Shell for new sessions. Write commands in **that** shell's syntax. |
 | `--cols <n>` / `--rows <n>` | `120` / `30` | Terminal size |
 | `--scrollback <n>` | `5000` | Lines of history kept |
@@ -224,10 +228,23 @@ JSON argument values must not contain extra shell quoting; keep spaces inside a 
 > [!WARNING]
 > **This is not a sandbox.** Sessions inherit your user privileges and environment, potentially including credentials. Use trusted clients and keep their approval gates enabled.
 
+What is enforced in code and what is only guidance:
+
+| Control | Enforced by | Notes |
+|---|---|---|
+| Node and platform checks, clean stdout | `launch.mjs` | Tested in `tests/guards.test.mjs` |
+| Runtime pin, SHA-512 lockfile, no install scripts | npm + `tests/pin.test.mjs` | Every locked package must be a registry tarball with integrity |
+| Session disposal on client disconnect or SIGINT/SIGTERM/SIGHUP | terminal-use | Forced kills and detached grandchildren can escape |
+| Command sessions never rerun automatically | terminal-use | Tested in `tests/supervision.test.mjs` |
+| Approvals, prompt injection, secrets, cwd scope, no duplicate submissions | **Agent Skill only** | Depends on the model and client following `SKILL.md`. Keep your client's own approval gates on |
+
 - **Human decisions stay human.** Trust, login, credential and approval prompts are shown to you verbatim. One-time approval is chosen only when an explicit policy you gave covers that exact action; persistent "always allow" is never chosen unasked.
+- **Terminal output is untrusted.** Text printed by programs, files and other agents is treated as data, never as instructions.
+- **`--cwd` is a default, not a jail.** Any session can start anywhere the user can.
 - **No silent global changes.** gentle-terminal never edits global settings, shell profiles, `PATH`, credentials or client configs on its own.
 - **No process-name kills.** Only sessions the agent created are destroyed, and only when idle. Upstream handles stdin disconnect and SIGINT/SIGTERM/SIGHUP, but forced termination, detached grandchildren and external programs can escape graceful disposal; uncertain cleanup is reported.
-- **Supply chain.** The runtime is pinned by version and SHA-512 integrity and installed with `--ignore-scripts`. `tests/pin.test.mjs` fails if the manifest, lockfile or installed version drift.
+- **Attach endpoints.** On Unix they are sockets in a `0700` directory. On Windows they are named pipes whose default ACL was observed to grant Read to Everyone; on shared Windows hosts other local accounts may be able to read session output. See [SECURITY.md](SECURITY.md).
+- **Supply chain.** The runtime is pinned by version and SHA-512 integrity and installed with `--ignore-scripts`. `tests/pin.test.mjs` fails if the manifest, lockfile or installed version drift, or if any locked package loses its registry integrity.
 
 Want stronger isolation? Run terminal-use inside a container (see the [upstream Docker notes](https://github.com/computer-agent-labs/terminal-use#docker)) and point the agent at that instead.
 
@@ -235,26 +252,46 @@ Want stronger isolation? Run terminal-use inside a container (see the [upstream 
 
 | OS | Architectures | Default shell | CI |
 |---|---|---|---|
-| Linux | x64, arm64 | `$SHELL` or `/bin/bash` | ✅ ubuntu-latest |
-| macOS | x64, arm64 | `$SHELL` | ✅ macos-latest |
-| Windows | x64, arm64 | Windows PowerShell | ✅ windows-latest |
+| Linux | x64, arm64 | `$SHELL` or `/bin/bash` | ubuntu-latest (x64), ubuntu-24.04-arm (arm64) |
+| macOS | arm64 (x64 untested) | `$SHELL` | macos-latest (arm64) |
+| Windows | x64, arm64 | Windows PowerShell | windows-latest (x64), windows-11-arm (arm64) |
+
+The CI column lists where the suite runs, on Node 22 and 24 for x64 and Node 24 for ARM runners. Check the badge or the Actions tab for the current result. macOS x64 relies on prebuilt binaries but has no runner here.
 
 Native dependencies are prebuilt; there is no compilation fallback. Reinstall the runtime on every OS/architecture and never copy `node_modules` between machines.
 
 ## Testing
 
 ```bash
-npm test          # launcher forwarding, relocation with spaces, pin integrity, export allowlist + privacy scan
+npm test          # launcher guards and forwarding, pin and lockfile integrity, skill validation,
+                  # export allowlist + privacy scan, E2E supervision against a simulated agent
 npm run smoke     # real MCP stdio round-trip: persistent state, keys, waits, exit codes, disconnect cleanup
+npm run bench     # cost benchmark: startup, payload sizes, per-tool latency, memory, calls per task
 ```
 
-The smoke test makes **no model calls** and touches no project files. It starts the server, drives a shell, checks `exit 7` propagation, then disconnects and confirms its own shell is gone.
+No test makes model or network calls, and scratch state lives in the OS temp directory. The smoke test starts the server, drives a shell, checks `exit 7` propagation, then disconnects and confirms its own shell is gone. [`evals/activation.json`](evals/activation.json) lists behavior cases (activation, authorization, silence, verification) for manual runs with real agents; they need a model, so they are not part of CI.
+
+### Measured cost
+
+Windows 11 x64, Node 24.16, terminal-use 0.2.1, 15 runs (`npm run bench`); sizes are bytes on the wire, tokens are a 4-bytes-per-token estimate.
+
+| Metric | v1.0.0 | v1.1.0 | Note |
+|---|---|---|---|
+| Skill description (discovery, always in context) | 252 B | 349 B | +97 B: now also says when not to activate |
+| Skill text required before the first action | 34,301 B (~8.6k tokens) | 5,693 B (~1.4k tokens) | v1.0.0 required README, workflow and upstream skill up front |
+| Run a command and read its exit status | 4 calls, 3,324 B, p50 534 ms | 1 call, 1,002 B, p50 314 ms | type + press + wait + read vs. one type with `\n` and a nonce marker |
+| `tools/list` | 24,828 B | 24,828 B | Upstream schema, unchanged |
+| Cold start to `initialize` result | p50 398 ms | p50 398 ms | Same launcher and runtime |
+| Server memory idle / with 6 shells | 109 MB / 378 MB | 109 MB / 378 MB | Working set of the server process |
+| Server CPU while idle | 0 ms per 5 s | 0 ms per 5 s | |
+
+The call-economy row measures the guidance, not a server change: the after-column is what an agent following `SKILL.md` sends. Under the full benchmark load, the upstream MCP SDK prints a `MaxListenersExceededWarning` on stderr (stdout stays valid JSON-RPC); it did not reproduce with 60 screenshots or 60 reads alone.
 
 ### Build a distributable archive
 
 ```bash
 npm pack --dry-run --json --ignore-scripts   # inspect the exact allowlisted file list
-npm pack --ignore-scripts                    # creates gentle-terminal-1.0.0.tgz
+npm pack --ignore-scripts                    # creates gentle-terminal-1.1.0.tgz
 ```
 
 The package is `private`, so it can be packed but not published to npm by accident. The `files` allowlist excludes installed modules, caches and scratch data, and the export test scans every packed file for home-directory paths.
@@ -263,15 +300,21 @@ The package is `private`, so it can be packed but not published to npm by accide
 
 ```text
 gentle-terminal/
-├── SKILL.md                 # Agent Skill: rules, decision gates, output contract
+├── SKILL.md                 # Agent Skill: hard rules, state table, efficient loop, on-demand index
 ├── launch.mjs               # Same-process launcher for the pinned MCP server
 ├── smoke.mjs                # Deterministic MCP stdio smoke test
-├── references/
-│   ├── workflow.md          # Supervise by state: gates, prompt recognition, client signals
+├── references/              # Loaded on demand
+│   ├── workflow.md          # Supervising coding agents, versioned client signals
+│   ├── authorization.md     # Trust, approval, login and secret prompts
+│   ├── recovery.md          # Timeouts, respawns, crashes, disconnects
+│   ├── windows.md           # PowerShell, cmd and ConPTY behavior
+│   ├── engine.md            # terminal-use limits, wait semantics, measured cost
 │   └── clients.md           # Activation notes per MCP client
+├── bench/                   # Reproducible cost benchmark
+├── evals/                   # Behavior cases for real-agent evaluation
 ├── examples/                # Copy-paste client configs and example prompts
 ├── runtime/                 # Pinned terminal-use manifest + lockfile (install per machine)
-├── tests/                   # node:test suite (launcher, pin, export)
+├── tests/                   # node:test suite, simulated agent fixture, MCP test client
 ├── docs/assets/             # README artwork
 └── .github/                 # CI, issue and PR templates
 ```

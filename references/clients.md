@@ -6,6 +6,10 @@ Before activation, verify the installed client's documentation, supported MCP tr
 
 Ready-to-copy files live in [`examples/`](../examples/README.md).
 
+Verification status (2026-10-24, Windows 11): the stdio server itself is verified by `npm run smoke` and the E2E suite with a test client. The configuration snippets below follow each client's documented format but were **not** integration-tested by applying them. Installed versions seen while observing startup behavior: Claude Code 2.1.296, Codex CLI 0.163.0, OpenCode 2.1.4. Cursor, VS Code and Claude Desktop were not verified.
+
+Skill discovery differs per client: some scan skill folders, some read `AGENTS.md`-style files, some load skills published by MCP servers (`skills/list`), and some do none of these. When unsure, ask the agent to read `SKILL.md` explicitly.
+
 ## Claude Code
 
 ```text
