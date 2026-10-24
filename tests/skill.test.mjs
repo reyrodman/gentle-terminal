@@ -52,7 +52,9 @@ test('safety rules survive any token optimization', () => {
     'claims need verification': /"done" are not results/,
     'no destroying working sessions': /Never destroy or interrupt a session that may still be working/,
     'no kill by name': /never kill by process name/i,
-    'shell-correct syntax': /actual shell/
+    'shell-correct syntax': /actual shell/,
+    'agent input boxes submit with a separate Enter': /Agent input boxes[^\n]*type without it, then `terminal_press` `Enter` once/,
+    'wording-free waits': /until: "quiet"/
   };
   for (const [rule, pattern] of Object.entries(required)) assert.match(body, pattern, rule);
   for (const state of ['STARTING', 'READY', 'RUNNING', 'AWAITING_HUMAN', 'AWAITING_PROGRAM_INPUT', 'IDLE', 'COMPLETED', 'FAILED', 'EXITED', 'UNKNOWN', 'RECOVERING']) {

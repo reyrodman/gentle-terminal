@@ -14,7 +14,8 @@ Upstream detail worth loading on demand only:
 ## Input tools
 
 - `terminal_type`, `terminal_press`, `terminal_click`, `terminal_scroll` return after output has been quiet for `idleMs` (default 200 ms), or after `maxWaitMs` (default 5 s, capped at 10 s) with a "still active" note; they then return the whole screen.
-- `\n` inside `terminal_type` is Enter. Without it, text is only written into the input line.
+- `\n` inside `terminal_type` is Enter. Without it, text is only written into the input line. Agent input boxes (Codex CLI and similar) can treat an Enter that arrives in the same burst as typed text as a pasted newline; send it with a separate `terminal_press`.
+- `terminal_press` takes `count` (for example `ArrowDown` ×2): one call and one screen instead of one per key.
 - `paste: true` sends multi-line text as one bracketed paste so editors do not auto-indent and shells do not run it line by line. Nothing is submitted until you press Enter.
 - `terminal_batch` runs up to its action limit in order, stops at the first failing step, and returns one screen at the end. It can include `wait` steps with a pattern. Do not batch across a point where a prompt or decision may appear.
 
@@ -23,7 +24,7 @@ Upstream detail worth loading on demand only:
 - No pattern, shell session: waits until the shell owns the terminal again and output is quiet. On Windows ownership cannot be checked; it falls back to about 2 s of silence and labels the result a guess.
 - No pattern, command session: waits for the program to exit and reports its exit code.
 - `pattern`: JavaScript regex, multiline (`^`/`$` per line), trailing spaces trimmed, `(?i)` prefix for case-insensitive. Searched on the screen plus 200 rows of scrollback. Text already there matches immediately.
-- `until: "quiet"`: returns after `quietMs` of silence; never returns while a program keeps printing.
+- `until: "quiet"`: returns after `quietMs` of silence; never returns while a program keeps printing. It needs no wording, so it is the robust choice for TUI startup and agent follow-ups; animated spinners and elapsed timers keep it waiting.
 - `timeoutMs` defaults to 30 s, max 10 min. A timeout is a normal response, not an error.
 
 ## Reading
@@ -49,6 +50,7 @@ Run a command and get its exit status: `type` + `press Enter` + `wait` + `read` 
 ## Sessions
 
 - `terminal_create` takes `cwd`, `shell`, `command`, `env`, `login`, `cols`, `rows`, `scrollback`, `label` and `theme` per call; server flags are only defaults.
+- Sessions inherit the server's environment. The emulator is always xterm-256color, so `launch.mjs` replaces an inherited empty or `dumb` `TERM` (common when a client starts from an agent or IDE shell) with `xterm-256color`; a `TERM` passed in `env` still wins.
 - `terminal_create` returns an attach command for the human. Do not run it yourself.
 - Explicit `terminal_destroy` is final: the ID then reports `Unknown sessionId`. A shell that exits by itself is respawned on the next call under the same ID; a finished command session stays readable until destroyed and is never rerun automatically.
 - Limits: 50 live sessions (the least recently active is evicted), 6 h inactivity kill. Closing the server's stdin or SIGINT/SIGTERM/SIGHUP disposes every session.

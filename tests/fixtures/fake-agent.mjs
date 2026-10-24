@@ -2,13 +2,39 @@
 // Deterministic stand-in for an interactive coding agent. It never calls a
 // model or the network and writes only inside its cwd. Usage:
 //   node fake-agent.mjs <scenario>
-// Scenarios: work | false-success | approval | inject | hang | crash | alt | flood
+// Scenarios: work | false-success | approval | inject | hang | crash | alt | flood | composer
 import { createInterface } from 'node:readline';
 import { writeFileSync } from 'node:fs';
 
 const scenario = process.argv[2] ?? 'work';
 const out = text => process.stdout.write(text);
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+if (scenario === 'composer') await composer();
+
+// Input box of agent TUIs such as Codex CLI: an Enter that arrives within a
+// burst of typed characters is taken as a pasted newline, not as submit.
+async function composer() {
+  const PASTE_GAP_MS = 50;
+  let text = '', last = 0;
+  out('FakeComposer 1.0 (simulated, no model)\n› ');
+  process.stdin.setRawMode(true);
+  for await (const chunk of process.stdin) {
+    for (const ch of chunk.toString('utf8')) {
+      const now = Date.now(), burst = now - last < PASTE_GAP_MS;
+      last = now;
+      if (ch === '\x03') process.exit(130);
+      if (ch !== '\r' && ch !== '\n') { text += ch; out(ch); continue; }
+      if (burst) { text += '\n'; out('\n  '); continue; }
+      const task = text.trim();
+      text = '';
+      if (task === '/quit') { out('\nShutting down\n'); process.exit(0); }
+      out(`\nreceived task: ${task.replaceAll('\n', ' / ')}\n`);
+      await work(1200);
+      out('Worked for 1s\n› ');
+    }
+  }
+}
 const rl = createInterface({ input: process.stdin, output: process.stdout, terminal: true });
 const lines = rl[Symbol.asyncIterator]();
 const ask = async prompt => { rl.setPrompt(prompt); rl.prompt(); return (await lines.next()).value?.trim() ?? ''; };

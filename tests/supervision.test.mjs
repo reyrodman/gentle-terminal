@@ -79,6 +79,41 @@ test('typed text is not submitted until Enter, and one Enter submits exactly onc
   await destroy(sessionId);
 });
 
+test('agent input box: a typed trailing newline is pasted, a separate Enter submits once, quiet ends supervision', async () => {
+  const { sessionId } = await open('composer', 'composer');
+  await call('terminal_wait', { sessionId, pattern: '^FakeComposer 1\\.0', timeoutMs: 10000 });
+  const typed = await call('terminal_type', { sessionId, text: 'summarize models\n' });
+  assert.doesNotMatch(typed, /received task/, 'a fast newline is not a submit in an agent input box');
+  const pressed = await call('terminal_press', { sessionId, key: 'Enter' });
+  assert.match(pressed, /^received task: summarize models$/m);
+  // No wording-specific pattern: the spinner keeps output flowing until the work ends.
+  const settled = await call('terminal_wait', { sessionId, until: 'quiet', quietMs: 1500, timeoutMs: 15000 });
+  assert.match(settled, /^Worked for 1s$/m);
+  assert.equal(settled.match(/received task/g).length, 1);
+  await call('terminal_type', { sessionId, text: '/quit' });
+  await call('terminal_press', { sessionId, key: 'Enter' });
+  assert.match(await call('terminal_wait', { sessionId, timeoutMs: 5000 }), /exit code 0/);
+  await destroy(sessionId);
+});
+
+test('an inherited TERM=dumb is replaced for sessions; an explicit session TERM wins', async () => {
+  const dumb = await startServer({ args: ['--cwd', scratch], env: { ...process.env, TERM: 'dumb' }, timeoutMs: 20000 });
+  try {
+    await dumb.initialize();
+    const show = windows ? "Write-Output ('TERM='+$env:TERM)" : 'printf "TERM=%s\\n" "$TERM"';
+    for (const [env, expected] of [[undefined, 'xterm-256color'], [{ TERM: 'vt100' }, 'vt100']]) {
+      const created = await dumb.tool('terminal_create', { command: show, ...(env && { env }) });
+      const sessionId = sessionIdOf(created.text);
+      const end = await dumb.tool('terminal_wait', { sessionId, timeoutMs: 10000 });
+      assert.match(end.text, new RegExp(`^TERM=${expected}$`, 'm'));
+      await dumb.tool('terminal_destroy', { sessionId });
+    }
+  } finally {
+    const { code } = await dumb.close();
+    assert.equal(code, 0);
+  }
+});
+
 test('a completion claim is not evidence: the claimed artifact can be missing', async () => {
   const { sessionId, cwd } = await open('false-success', 'false-success');
   await trust(sessionId);

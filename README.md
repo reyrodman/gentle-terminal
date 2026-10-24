@@ -159,15 +159,16 @@ What a well-behaved supervised session looks like (tool calls from the agent's s
 
 ```text
 terminal_create  { command: "codex", cwd: "/approved/workspace" }   -> Created session 1
-terminal_wait    { sessionId: 1, pattern: "(?i)trust|\\? for shortcuts", timeoutMs: 20000 }
-  ⤷ input box visible, but STARTING: re-read once -> a trust/hooks menu appeared later
+terminal_wait    { sessionId: 1, until: "quiet", quietMs: 3000, timeoutMs: 30000 }
+  ⤷ input box visible, but STARTING: wait quiet again -> a trust/hooks menu appeared later
   ⤷ AWAITING_HUMAN: the exact menu is shown to the user, who answers "once" -> agent waits
-terminal_type    { sessionId: 1, text: "add a unit test for parseConfig\n" }  (submitted once)
-terminal_wait    { sessionId: 1, pattern: "Worked for|Allow|\\(y/n\\)", timeoutMs: 60000 }
-  ⤷ timed out -> terminal_read -> "esc to interrupt" still visible -> state: working -> wait again
-terminal_wait    { ... }                                     -> "Worked for 2m 14s" -> state: idle
+terminal_type    { sessionId: 1, text: "add a unit test for parseConfig" }   (no \n: input boxes treat it as paste)
+terminal_press   { sessionId: 1, key: "Enter" }              -> task echoed in the transcript (submitted once)
+terminal_wait    { sessionId: 1, until: "quiet", quietMs: 3000, timeoutMs: 120000 }
+  ⤷ timed out -> "esc to interrupt" still visible -> state: RUNNING -> wait again
+terminal_wait    { ... }                                     -> "Worked for 2m 14s", prompt back -> state: IDLE
   ⤷ agent reads the new test file and runs it in a separate command session: exit 0
-terminal_type    { sessionId: 1, text: "/quit\n" }
+terminal_type    { sessionId: 1, text: "/quit" }  +  terminal_press { key: "Enter" }
 terminal_wait    { sessionId: 1 }                            -> command exited (exit code 0)
 terminal_destroy { sessionId: 1 }
 ```
@@ -187,7 +188,7 @@ flowchart LR
     A -.->|trust / login / approval prompts| U
 ```
 
-1. **`launch.mjs`** checks Node (>= 22.12) and platform, then imports the official `terminal-use` binary **in the same process**, so arguments, stdio, signals and exit codes behave exactly as upstream. No child wrapper, no extra engine.
+1. **`launch.mjs`** checks Node (>= 22.12) and platform, then imports the official `terminal-use` binary **in the same process**, so arguments, stdio, signals and exit codes behave exactly as upstream. No child wrapper, no extra engine. Its only environment change: an inherited empty or `dumb` `TERM` becomes `xterm-256color`, matching the emulator, so TUIs started from IDE or agent shells still run.
 2. **`runtime/`** holds a lockfile that pins `terminal-use@0.2.1` by registry integrity. Each machine installs its own platform-specific prebuilt binaries; `node_modules` is never shipped.
 3. **`SKILL.md`** encodes the operating policy: classify the screen into one of eleven states after every response, stop at human decisions, prove completion with fresh markers, verify artifacts before follow-ups, exit naturally and clean up owned sessions. The files in **`references/`** are read on demand only.
 
@@ -278,7 +279,7 @@ Windows 11 x64, Node 24.16, terminal-use 0.2.1, 15 runs (`npm run bench`); sizes
 | Metric | v1.0.0 | v1.1.0 | Note |
 |---|---|---|---|
 | Skill description (discovery, always in context) | 252 B | 349 B | +97 B: now also says when not to activate |
-| Skill text required before the first action | 34,301 B (~8.6k tokens) | 5,693 B (~1.4k tokens) | v1.0.0 required README, workflow and upstream skill up front |
+| Skill text required before the first action | 34,301 B (~8.6k tokens) | 6,093 B (~1.5k tokens) | v1.0.0 required README, workflow and upstream skill up front |
 | Run a command and read its exit status | 4 calls, 3,324 B, p50 534 ms | 1 call, 1,002 B, p50 314 ms | type + press + wait + read vs. one type with `\n` and a nonce marker |
 | `tools/list` | 24,828 B | 24,828 B | Upstream schema, unchanged |
 | Cold start to `initialize` result | p50 398 ms | p50 398 ms | Same launcher and runtime |
