@@ -97,6 +97,26 @@ test('an update repoints old entries in place and keeps their name, extra argume
   assert.equal(readFileSync(codex, 'utf8'), `[mcp_servers.gentle-terminal]\ncommand = "node"\nargs = ['${launcher}']\n\n[mcp_servers.gentle-terminal.env]\nA = "1"\n`);
 });
 
+test('a client installed after the first run is added on the next run, existing ones stay up to date', t => {
+  const m = machine();
+  t.after(m.cleanup);
+  m.file('.config/opencode/opencode.json', '{}');
+  const first = m.run();
+  assert.equal(first.code, 0, first.out);
+  assert.match(first.out, /First installation:/);
+  assert.match(first.out, /Codex \(CLI, app and IDE extension\)\s+not installed/);
+
+  const codex = m.file('.codex/config.toml', 'model = "x"\n');
+  const next = m.run();
+  assert.equal(next.code, 0, next.out);
+  assert.match(next.out, /Updating existing installation:/);
+  assert.match(next.out, /OpenCode\s+up to date/);
+  assert.match(next.out, /Codex \(CLI, app and IDE extension\)\s+added/);
+  assert.match(next.out, /Restart or reload MCP servers in: Codex \(CLI, app and IDE extension\)\./);
+  assert.match(readFileSync(codex, 'utf8'), /\[mcp_servers\.gentle-terminal\]/);
+  assert.equal(realpathSync(join(m.home, '.agents/skills/gentle-terminal')), realpathSync(root));
+});
+
 test('files it cannot edit safely are reported for a manual step and left byte-for-byte unchanged', t => {
   const m = machine();
   t.after(m.cleanup);
