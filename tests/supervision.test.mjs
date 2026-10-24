@@ -96,12 +96,13 @@ test('agent input box: a typed trailing newline is pasted, a separate Enter subm
   await destroy(sessionId);
 });
 
-test('an inherited TERM=dumb is replaced for sessions; an explicit session TERM wins', async () => {
+test('an inherited TERM=dumb never reaches sessions; an explicit session TERM wins only on Windows', async () => {
   const dumb = await startServer({ args: ['--cwd', scratch], env: { ...process.env, TERM: 'dumb' }, timeoutMs: 20000 });
   try {
     await dumb.initialize();
     const show = windows ? "Write-Output ('TERM='+$env:TERM)" : 'printf "TERM=%s\\n" "$TERM"';
-    for (const [env, expected] of [[undefined, 'xterm-256color'], [{ TERM: 'vt100' }, 'vt100']]) {
+    // On Linux and macOS node-pty sets TERM from the PTY name (xterm-256color).
+    for (const [env, expected] of [[undefined, 'xterm-256color'], [{ TERM: 'vt100' }, windows ? 'vt100' : 'xterm-256color']]) {
       const created = await dumb.tool('terminal_create', { command: show, ...(env && { env }) });
       const sessionId = sessionIdOf(created.text);
       const end = await dumb.tool('terminal_wait', { sessionId, timeoutMs: 10000 });

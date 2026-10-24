@@ -188,7 +188,7 @@ flowchart LR
     A -.->|trust / login / approval prompts| U
 ```
 
-1. **`launch.mjs`** checks Node (>= 22.12) and platform, then imports the official `terminal-use` binary **in the same process**, so arguments, stdio, signals and exit codes behave exactly as upstream. No child wrapper, no extra engine. Its only environment change: an inherited empty or `dumb` `TERM` becomes `xterm-256color`, matching the emulator, so TUIs started from IDE or agent shells still run.
+1. **`launch.mjs`** checks Node (>= 22.12) and platform, then imports the official `terminal-use` binary **in the same process**, so arguments, stdio, signals and exit codes behave exactly as upstream. No child wrapper, no extra engine. Its only environment change: an inherited empty or `dumb` `TERM` becomes `xterm-256color`, matching the emulator, so TUIs started from IDE or agent shells still run on Windows (Linux and macOS sessions always get `xterm-256color`).
 2. **`runtime/`** holds a lockfile that pins `terminal-use@0.2.1` by registry integrity. Each machine installs its own platform-specific prebuilt binaries; `node_modules` is never shipped.
 3. **`SKILL.md`** encodes the operating policy: classify the screen into one of eleven states after every response, stop at human decisions, prove completion with fresh markers, verify artifacts before follow-ups, exit naturally and clean up owned sessions. The files in **`references/`** are read on demand only.
 

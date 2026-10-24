@@ -50,7 +50,7 @@ Run a command and get its exit status: `type` + `press Enter` + `wait` + `read` 
 ## Sessions
 
 - `terminal_create` takes `cwd`, `shell`, `command`, `env`, `login`, `cols`, `rows`, `scrollback`, `label` and `theme` per call; server flags are only defaults.
-- Sessions inherit the server's environment. The emulator is always xterm-256color, so `launch.mjs` replaces an inherited empty or `dumb` `TERM` (common when a client starts from an agent or IDE shell) with `xterm-256color`; a `TERM` passed in `env` still wins.
+- Sessions inherit the server's environment. The emulator is always xterm-256color. On Linux and macOS sessions always get `TERM=xterm-256color`, even when `env` sets another value. On Windows `TERM` passes through, so `launch.mjs` replaces an inherited empty or `dumb` value (common when a client starts from an agent or IDE shell) with `xterm-256color`; a `TERM` passed in `env` still wins there.
 - `terminal_create` returns an attach command for the human. Do not run it yourself.
 - Explicit `terminal_destroy` is final: the ID then reports `Unknown sessionId`. A shell that exits by itself is respawned on the next call under the same ID; a finished command session stays readable until destroyed and is never rerun automatically.
 - Limits: 50 live sessions (the least recently active is evicted), 6 h inactivity kill. Closing the server's stdin or SIGINT/SIGTERM/SIGHUP disposes every session.

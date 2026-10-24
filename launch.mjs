@@ -10,7 +10,8 @@ const entry = new URL('./runtime/node_modules/terminal-use/bin/terminal-use.js',
 if (!existsSync(entry)) fail('runtime missing; run "npm run setup" in the gentle-terminal folder.');
 // Sessions inherit this process's environment, but their terminal is always an
 // xterm-256color emulator. Clients started from agent or IDE shells often export
-// TERM=dumb, which makes TUIs (Codex CLI among them) refuse to start.
+// TERM=dumb, which makes TUIs (Codex CLI among them) refuse to start. Only Windows
+// passes it through; on Linux and macOS node-pty already sets TERM from the PTY.
 if (process.env.TERM !== undefined && ['', 'dumb'].includes(process.env.TERM.trim())) process.env.TERM = 'xterm-256color';
 // Import the official bin in this process: preserve argv, stdio, exits and its
 // SIGINT/SIGTERM/SIGHUP + stdin-close disposal; do not introduce a child wrapper.
