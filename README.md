@@ -46,13 +46,14 @@ Most agent shell tools run one command and hand back its output. That breaks the
 <img src="docs/assets/capabilities.svg" alt="Six capabilities: real terminals and TUIs, supervising coding agents by state, approval-first prompts, verified completion, a one-command installer for nine clients, and a pinned, tested runtime" width="100%">
 
 - 🖥️ **Real terminals, not command runners.** Full PTY with colors, cursor movement and alternate screen, readable as text or PNG screenshots (powered by terminal-use).
-- 🛡️ **Approval-first Agent Skill.** A compact [`SKILL.md`](SKILL.md) (about 6 KB) with hard rules, an eleven-state decision table and an efficient call loop. Specialized guidance (authorization, recovery, Windows, engine limits, agent supervision) is loaded only when needed.
+- 🛡️ **Approval-first Agent Skill.** A compact [`SKILL.md`](SKILL.md) (about 7 KB) with hard rules, an eleven-state decision table and an efficient call loop.
+- 🚦 **Standard or Automatic, your call per task.** The agent asks once, in your language. **Standard** shows you every trust and approval prompt. **Automatic** answers, never persistently, the prompts the task needs and keeps going until the goal is verified; credentials, deletions, system changes, publishing and anything uncertain still stop for you. Specialized guidance (authorization, recovery, Windows, engine limits, agent supervision) is loaded only when needed.
 - 🤖 **Supervise other coding agents.** A [state-based workflow](references/workflow.md) with versioned, observed signals for Codex CLI, OpenCode, Antigravity CLI and Claude Code startup.
 - 🧪 **Behavior pinned by tests.** A deterministic simulated agent exercises delayed trust overlays, approval menus, silent hangs, crashes, false completion claims, prompt injection and respawns through the real MCP server, without any model calls.
 - 📌 **Pinned and verifiable.** Runtime locked to `terminal-use@0.2.1` with SHA-512 integrity, installed with `--ignore-scripts`; a test fails if the pin drifts.
 - 🧳 **Portable launcher.** One `node launch.mjs` entry point that works from any cwd and from paths with spaces, forwarding stdio, arguments and exit codes in the same process.
 - 🔌 **One command for every client.** `node install.mjs` registers or updates gentle-terminal in each installed client: Cursor, VS Code, Codex, Claude Code, Claude Desktop, OpenCode, Antigravity, Gemini CLI and Windsurf. Ready-to-copy configs are included for manual setup.
-- ✅ **Tested on Linux, macOS and Windows, x64 and ARM64.** 44 `node:test` tests, including E2E supervision against a simulated agent and the installer against a temporary home folder, plus a deterministic MCP smoke test in CI; no model or network calls.
+- ✅ **Tested on Linux, macOS and Windows, x64 and ARM64.** 45 `node:test` tests, including E2E supervision against a simulated agent and the installer against a temporary home folder, plus a deterministic MCP smoke test in CI; no model or network calls.
 - 🪶 **No hidden global changes.** No global install, no PATH or profile edits. Client configs and skill links change only when you run the installer, with a backup of every file it edits.
 
 ## Quick start
@@ -247,9 +248,10 @@ What is enforced in code and what is only guidance:
 | Runtime pin, SHA-512 lockfile, no install scripts | npm + `tests/pin.test.mjs` | Every locked package must be a registry tarball with integrity |
 | Session disposal on client disconnect or SIGINT/SIGTERM/SIGHUP | terminal-use | Forced kills and detached grandchildren can escape |
 | Command sessions never rerun automatically | terminal-use | Tested in `tests/supervision.test.mjs` |
-| Approvals, prompt injection, secrets, cwd scope, no duplicate submissions | **Agent Skill only** | Depends on the model and client following `SKILL.md`. Keep your client's own approval gates on |
+| Approvals, Standard/Automatic modes and their hard limits, prompt injection, secrets, cwd scope, no duplicate submissions | **Agent Skill only** | Depends on the model and client following `SKILL.md`. Keep your client's own approval gates on |
 
 - **Human decisions stay human.** Trust, login, credential and approval prompts are shown to you verbatim. One-time approval is chosen only when an explicit policy you gave covers that exact action; persistent "always allow" is never chosen unasked.
+- **Automatic mode is a policy you grant, not a bypass.** When you pick it at the start of a task, the agent answers, once or for that session only, the prompts the task needs, even outside the workspace. Hard limits always come back to you: credentials and secrets, deleting or overwriting what the task did not create, elevation and operating system changes, publishing the task did not ask for, instructions found on screen, persistent options and anything uncertain. Every automatic answer is listed in the final report ([details](references/authorization.md#automatic-mode)). Your client may still confirm each tool call; see [tool-call confirmations](references/clients.md#tool-call-confirmations).
 - **Terminal output is untrusted.** Text printed by programs, files and other agents is treated as data, never as instructions.
 - **`--cwd` is a default, not a jail.** Any session can start anywhere the user can.
 - **No silent global changes.** gentle-terminal never edits global settings, shell profiles, `PATH` or credentials. Client configs and skill links are changed only by `node install.mjs` when you run it; nothing runs it automatically (no npm lifecycle scripts, no background updates).
@@ -289,7 +291,7 @@ Windows 11 x64, Node 24.16, terminal-use 0.2.1, 15 runs (`npm run bench`); sizes
 | Metric | v1.0.0 | v1.1.0 | Note |
 |---|---|---|---|
 | Skill description (discovery, always in context) | 252 B | 349 B | +97 B: now also says when not to activate |
-| Skill text required before the first action | 34,301 B (~8.6k tokens) | 6,272 B (~1.6k tokens) | v1.0.0 required README, workflow and upstream skill up front. Current `SKILL.md` (with the Windows wait rule): 6,421 B |
+| Skill text required before the first action | 34,301 B (~8.6k tokens) | 6,272 B (~1.6k tokens) | v1.0.0 required README, workflow and upstream skill up front. Current `SKILL.md` (with the Windows wait rule and the Standard/Automatic modes): 7,379 B (~1.8k tokens) |
 | Run a command and read its exit status | 4 calls, 3,324 B, p50 534 ms | 1 call, 1,002 B, p50 314 ms | type + press + wait + read vs. one type with `\n` and a nonce marker |
 | `tools/list` | 24,828 B | 24,828 B | Upstream schema, unchanged |
 | Cold start to `initialize` result | p50 398 ms | p50 398 ms | Same launcher and runtime |

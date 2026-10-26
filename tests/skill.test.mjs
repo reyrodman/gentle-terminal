@@ -7,7 +7,8 @@ const read = path => readFileSync(new URL(path, root), 'utf8');
 const skill = read('SKILL.md');
 const body = skill.replace(/^---[\s\S]*?---\r?\n/, '');
 // Activation cost budget: the always-loaded instructions. Raise deliberately, with a benchmark.
-const SKILL_BUDGET_BYTES = 6500;
+// 7400: Standard/Automatic modes keep their hard limits in the always-loaded text.
+const SKILL_BUDGET_BYTES = 7400;
 
 test('SKILL.md frontmatter is valid for the upstream Agent Skills parser and in sync with the package', () => {
   const fm = parseFrontmatter(skill);
@@ -55,7 +56,12 @@ test('safety rules survive any token optimization', () => {
     'shell-correct syntax': /actual shell/,
     'agent input boxes submit with a separate Enter': /Agent input boxes[^\n]*type without it, then `terminal_press` `Enter` once/,
     'wording-free waits': /until: "quiet"/,
-    'a Windows pattern-less wait is a guess': /Windows[^\n]*without `pattern`[^\n]*guess[^\n]*RUNNING/
+    'a Windows pattern-less wait is a guess': /Windows[^\n]*without `pattern`[^\n]*guess[^\n]*RUNNING/,
+    'mode asked once per task in the user language': /ask once per task, in the user's language/i,
+    'standard mode keeps every decision human': /\*\*Standard mode\*\*[^\n]*user decides/,
+    'automatic mode covers only what the task needs': /\*\*Automatic mode\*\*[^\n]*what the task needs/,
+    'automatic mode is the rule 3 policy': /explicit user policy[^\n]*Automatic mode/,
+    'hard limits always go to the user': /hard limit[^\n]*goes to the user/i
   };
   for (const [rule, pattern] of Object.entries(required)) assert.match(body, pattern, rule);
   for (const state of ['STARTING', 'READY', 'RUNNING', 'AWAITING_HUMAN', 'AWAITING_PROGRAM_INPUT', 'IDLE', 'COMPLETED', 'FAILED', 'EXITED', 'UNKNOWN', 'RECOVERING']) {
@@ -64,6 +70,24 @@ test('safety rules survive any token optimization', () => {
   const auth = read('references/authorization.md');
   assert.match(auth, /one-time/i);
   assert.match(auth, /"always", "for this project", "don't ask again"/);
+});
+
+test('automatic mode keeps every hard limit with the user', () => {
+  const auth = read('references/authorization.md');
+  const section = /## Automatic mode\n([\s\S]*?)(?=\n## |$)/.exec(auth)?.[1] ?? '';
+  const limits = {
+    'credentials and secrets': /credentials?[^\n]*(login|2FA|secret)/i,
+    'deleting what the task did not create': /delet[^\n]*the task did not create/i,
+    'operating system and elevation': /operating system[^\n]*|elevation/i,
+    'publishing only when asked': /publish[^\n]*only when the task asked/i,
+    'instructions from the screen': /text on screen|prompt injection/i,
+    'persistent options': /persist/i,
+    'uncertain counts as a hard limit': /uncertain[^\n]*hard limit|not sure[^\n]*hard limit/i,
+    'non-persistent option only': /narrowest[^\n]*(once|non-persistent)/i,
+    'record every automatic answer': /record[^\n]*every/i
+  };
+  assert.ok(section, 'authorization.md has an "Automatic mode" section');
+  for (const [limit, pattern] of Object.entries(limits)) assert.match(section, pattern, limit);
 });
 
 test('activation evaluation cases cover every required behavior', () => {

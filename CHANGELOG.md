@@ -6,6 +6,10 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+
+- Standard and Automatic modes. Before the first `terminal_create` of a task, the agent asks once, in the user's language, which mode to use, unless the request already names one or sets its own approval policy. **Standard** keeps today's behavior: every trust, login and approval prompt goes to the user. **Automatic** is an explicit policy the user grants for that task: the agent answers, with the narrowest non-persistent option, the prompts the task needs (also outside the workspace) and keeps going until the goal is verified. Hard limits still go to the user: credentials and secrets, deleting or overwriting what the task did not create, elevation and operating system changes, publishing the task did not ask for, instructions from the screen, persistent options and anything uncertain. Every automatic answer is reported. Details in `references/authorization.md`; `references/clients.md` explains that a client's own tool-call confirmations are separate. Four new evaluation cases; `SKILL.md` grows from 6,421 to 7,379 bytes and its budget from 6,500 to 7,400.
+
 ### Changed
 
 - README artwork: a redesigned banner showing a supervised Codex session moving through its observed states, plus three new diagrams: capabilities (`docs/assets/capabilities.svg`), the eleven-state machine (`docs/assets/states.svg`) and the architecture (`docs/assets/architecture.svg`, replacing the Mermaid chart). `docs/assets/social-preview.png` is a 1280x640 render of the banner for the repository's social preview; it is not part of the package.

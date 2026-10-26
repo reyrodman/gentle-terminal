@@ -91,6 +91,10 @@ Verify the installed version's local MCP schema and configuration scope. This fo
 }
 ```
 
+## Tool-call confirmations
+
+Many clients ask before each MCP tool call. Those confirmations belong to the client, not to gentle-terminal: [Automatic mode](authorization.md#automatic-mode) removes the stops for the supervised program's prompts, but the client can still pause before every `terminal_*` call. To run a task unattended, allow the gentle-terminal tools in the client's own auto-run, allowlist or permission settings, scoped to this server only. Check the installed client's documentation for the exact setting; the installer never changes it. Allowing tool calls does not lift the skill's hard limits: credentials, deletions, system changes and the rest still go to the user.
+
 ## After an approved change
 
 Reload as the client requires, inspect MCP status, and perform a bounded probe. On Windows use absolute Windows paths; optionally pass `--shell` for an installed shell. Read [the skill](../SKILL.md) and its installed upstream skill through the client's supported mechanism. Tool availability alone neither loads the policy nor guarantees model competence. No automatic registration or real-agent task is part of the reusable smoke.
