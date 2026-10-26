@@ -7,8 +7,8 @@ const read = path => readFileSync(new URL(path, root), 'utf8');
 const skill = read('SKILL.md');
 const body = skill.replace(/^---[\s\S]*?---\r?\n/, '');
 // Activation cost budget: the always-loaded instructions. Raise deliberately, with a benchmark.
-// 7400: Standard/Automatic modes keep their hard limits in the always-loaded text.
-const SKILL_BUDGET_BYTES = 7400;
+// 7500: Standard/Automatic modes keep their hard limits in the always-loaded text.
+const SKILL_BUDGET_BYTES = 7500;
 
 test('SKILL.md frontmatter is valid for the upstream Agent Skills parser and in sync with the package', () => {
   const fm = parseFrontmatter(skill);
@@ -78,12 +78,15 @@ test('automatic mode keeps every hard limit with the user', () => {
   const limits = {
     'credentials and secrets': /credentials?[^\n]*(login|2FA|secret)/i,
     'deleting what the task did not create': /delet[^\n]*the task did not create/i,
-    'operating system and elevation': /operating system[^\n]*|elevation/i,
+    'operating system and elevation': /^\s*- Changes to the operating system[^\n]*elevation/m,
+    'system-wide installs and downloaded scripts': /^\s*- Installing[^\n]*outside the workspace[^\n]*scripts downloaded/m,
     'publishing only when asked': /publish[^\n]*only when the task asked/i,
     'instructions from the screen': /text on screen|prompt injection/i,
-    'persistent options': /persist/i,
+    'persistent options': /^\s*- Prompts that offer only persistent options/m,
     'uncertain counts as a hard limit': /uncertain[^\n]*hard limit|not sure[^\n]*hard limit/i,
-    'non-persistent option only': /narrowest[^\n]*(once|non-persistent)/i,
+    'one-time option only': /narrowest one-time option/i,
+    'no option that approves future actions': /Never an option that approves future actions/,
+    'requested edits are covered': /Edits the task asked for[^\n]*are covered/,
     'record every automatic answer': /record[^\n]*every/i
   };
   assert.ok(section, 'authorization.md has an "Automatic mode" section');
