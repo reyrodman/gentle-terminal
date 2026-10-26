@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="500" viewBox="0 0 1280 500" role="img" aria-labelledby="title desc">
+  <title id="title">How gentle-terminal works</title>
+  <desc id="desc">You give an AI agent a task. The agent reads SKILL.md and talks MCP over stdio to launch.mjs, which imports the pinned terminal-use 0.2.1 server in the same Node process. terminal-use drives a real PTY with an xterm emulator running shells, REPLs, TUIs and other agents. Trust, login and approval prompts come back to you.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#090e1c"/>
+      <stop offset="1" stop-color="#121a36"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#a78bfa"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#111a33"/>
+      <stop offset="1" stop-color="#0c1428"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#1a2547" stroke-width="1"/>
+    </pattern>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#7c8db5"/>
+    </marker>
+    <marker id="arrow-pink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#f472b6"/>
+    </marker>
+  </defs>
+
+  <rect width="1280" height="500" rx="28" fill="url(#bg)"/>
+  <rect width="1280" height="500" rx="28" fill="url(#grid)" opacity="0.45"/>
+
+  <text x="56" y="62" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="28" font-weight="700" fill="#f8fafc">How it works</text>
+
+  <!-- One Node process bracket -->
+  <rect x="506" y="232" width="440" height="152" rx="20" fill="#22d3ee" fill-opacity="0.03" stroke="#22d3ee" stroke-opacity="0.35" stroke-dasharray="6 5"/>
+  <text x="522" y="224" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#67e8f9">one Node process &#183; no child wrapper</text>
+
+  <!-- Edges -->
+  <g stroke="#7c8db5" stroke-width="2" fill="none">
+    <path d="M168 308 H224" marker-end="url(#arrow)"/>
+    <path d="M432 308 H508" marker-end="url(#arrow)"/>
+    <path d="M686 308 H742" marker-end="url(#arrow)"/>
+    <path d="M930 308 H974" marker-end="url(#arrow)"/>
+    <path d="M332 252 V184" marker-end="url(#arrow)"/>
+  </g>
+  <path d="M300 364 V424 H112 V372" fill="none" stroke="#f472b6" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arrow-pink)"/>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#94a3b8">
+    <text x="196" y="296" text-anchor="middle">task</text>
+    <text x="466" y="296" text-anchor="middle">MCP stdio</text>
+    <text x="714" y="296" text-anchor="middle">import</text>
+    <text x="952" y="296" text-anchor="middle">PTY</text>
+    <text x="342" y="222">reads</text>
+  </g>
+  <text x="112" y="452" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#f9a8d4">trust, login and approval prompts &#8594; you decide</text>
+  <text x="516" y="452" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" fill="#64748b">runtime/ pins terminal-use@0.2.1 by registry integrity</text>
+
+  <!-- SKILL.md policy -->
+  <g transform="translate(202 92)">
+    <rect width="260" height="88" rx="16" fill="#a78bfa" fill-opacity="0.10" stroke="#a78bfa" stroke-opacity="0.6"/>
+    <text x="130" y="36" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" font-weight="700" fill="#c4b5fd">SKILL.md</text>
+    <text x="130" y="62" text-anchor="middle" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#94a3b8">hard rules &#183; 11 states &#183; references</text>
+  </g>
+
+  <!-- You -->
+  <g transform="translate(56 252)">
+    <rect width="112" height="112" rx="18" fill="url(#card)" stroke="#f472b6" stroke-opacity="0.55"/>
+    <circle cx="56" cy="40" r="13" fill="none" stroke="#f9a8d4" stroke-width="2.4"/>
+    <path d="M32 78 C34 62 78 62 80 78" fill="none" stroke="#f9a8d4" stroke-width="2.4" stroke-linecap="round"/>
+    <text x="56" y="100" text-anchor="middle" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#f8fafc">You</text>
+  </g>
+
+  <!-- AI agent -->
+  <g transform="translate(232 252)">
+    <rect width="200" height="112" rx="18" fill="url(#card)" stroke="#26345a"/>
+    <rect x="20" width="160" height="3" rx="1.5" fill="url(#accent)"/>
+    <g font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+      <text x="100" y="42" text-anchor="middle" font-size="18" font-weight="700" fill="#f8fafc">AI agent</text>
+      <text x="100" y="68" text-anchor="middle" font-size="13" fill="#94a3b8">Claude Code &#183; Codex</text>
+      <text x="100" y="88" text-anchor="middle" font-size="13" fill="#94a3b8">Cursor &#183; OpenCode &#183; more</text>
+    </g>
+  </g>
+
+  <!-- launch.mjs -->
+  <g transform="translate(516 252)">
+    <rect width="170" height="112" rx="18" fill="url(#card)" stroke="#26345a"/>
+    <text x="85" y="42" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" font-weight="700" fill="#67e8f9">launch.mjs</text>
+    <g font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#94a3b8">
+      <text x="85" y="68" text-anchor="middle">Node &gt;= 22.12 and</text>
+      <text x="85" y="88" text-anchor="middle">platform guards</text>
+    </g>
+  </g>
+
+  <!-- terminal-use -->
+  <g transform="translate(750 252)">
+    <rect width="180" height="112" rx="18" fill="url(#card)" stroke="#26345a"/>
+    <text x="90" y="42" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" font-weight="700" fill="#67e8f9">terminal-use 0.2.1</text>
+    <g font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#94a3b8">
+      <text x="90" y="68" text-anchor="middle">pinned, SHA-512</text>
+      <text x="90" y="88" text-anchor="middle">no install scripts</text>
+    </g>
+  </g>
+
+  <!-- PTY and programs -->
+  <g transform="translate(982 252)">
+    <rect width="242" height="112" rx="18" fill="url(#card)" stroke="#26345a"/>
+    <text x="121" y="36" text-anchor="middle" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#f8fafc">Real PTY + xterm</text>
+    <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" font-weight="700" text-anchor="middle">
+      <rect x="18" y="52" width="98" height="22" rx="11" fill="#2dd4bf" fill-opacity="0.14" stroke="#2dd4bf" stroke-opacity="0.55"/>
+      <text x="67" y="67" fill="#5eead4">shells</text>
+      <rect x="126" y="52" width="98" height="22" rx="11" fill="#38bdf8" fill-opacity="0.14" stroke="#38bdf8" stroke-opacity="0.55"/>
+      <text x="175" y="67" fill="#7dd3fc">REPLs</text>
+      <rect x="18" y="80" width="98" height="22" rx="11" fill="#fbbf24" fill-opacity="0.14" stroke="#fbbf24" stroke-opacity="0.55"/>
+      <text x="67" y="95" fill="#fcd34d">TUIs</text>
+      <rect x="126" y="80" width="98" height="22" rx="11" fill="#a78bfa" fill-opacity="0.14" stroke="#a78bfa" stroke-opacity="0.55"/>
+      <text x="175" y="95" fill="#c4b5fd">agents</text>
+    </g>
+  </g>
+</svg>

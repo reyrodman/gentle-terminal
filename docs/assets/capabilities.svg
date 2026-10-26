@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">What gentle-terminal can do</title>
+  <desc id="desc">Six capabilities: real terminals and TUIs, supervising coding agents by state, approval-first prompts, verified completion, a one-command installer for nine MCP clients, and a pinned, tested runtime.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#090e1c"/>
+      <stop offset="1" stop-color="#121a36"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#a78bfa"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#111a33"/>
+      <stop offset="1" stop-color="#0c1428"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#1a2547" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1280" height="720" rx="28" fill="url(#bg)"/>
+  <rect width="1280" height="720" rx="28" fill="url(#grid)" opacity="0.45"/>
+
+  <g font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+    <text x="64" y="80" font-size="30" font-weight="700" fill="#f8fafc">What gentle-terminal can do</text>
+    <text x="64" y="112" font-size="16" fill="#94a3b8">Each capability is backed by code, a test or a written rule in SKILL.md.</text>
+  </g>
+
+  <!-- Card 1: real terminals -->
+  <g transform="translate(64 148)">
+    <rect width="368" height="248" rx="18" fill="url(#card)" stroke="#22304f"/>
+    <rect x="24" y="0" width="320" height="3" rx="1.5" fill="#22d3ee" opacity="0.8"/>
+    <g transform="translate(28 28)">
+      <rect width="48" height="48" rx="12" fill="#22d3ee" fill-opacity="0.14" stroke="#22d3ee" stroke-opacity="0.5"/>
+      <rect x="11" y="13" width="26" height="22" rx="3" fill="none" stroke="#67e8f9" stroke-width="2.2"/>
+      <path d="M16 21 L20 24 L16 27" fill="none" stroke="#67e8f9" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M23 28 H30" stroke="#67e8f9" stroke-width="2.2" stroke-linecap="round"/>
+    </g>
+    <g font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+      <text x="28" y="112" font-size="20" font-weight="700" fill="#f8fafc">Real terminals and TUIs</text>
+      <text x="28" y="144" font-size="14.5" fill="#94a3b8">vim, htop, Python REPLs, git rebase -i,</text>
+      <text x="28" y="166" font-size="14.5" fill="#94a3b8">SSH logins and installers on a real PTY,</text>
+      <text x="28" y="188" font-size="14.5" fill="#94a3b8">read as text or rendered as PNG.</text>
+    </g>
+    <text x="28" y="224" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12.5" fill="#67e8f9">terminal_screenshot &#183; alt screen</text>
+  </g>
+
+  <!-- Card 2: supervise agents -->
+  <g transform="translate(456 148)">
+    <rect width="368" height="248" rx="18" fill="url(#card)" stroke="#22304f"/>
+    <rect x="24" y="0" width="320" height="3" rx="1.5" fill="#a78bfa" opacity="0.8"/>
+    <g transform="translate(28 28)">
+      <rect width="48" height="48" rx="12" fill="#a78bfa" fill-opacity="0.14" stroke="#a78bfa" stroke-opacity="0.5"/>
+      <path d="M9 24 C14 15 34 15 39 24 C34 33 14 33 9 24 Z" fill="none" stroke="#c4b5fd" stroke-width="2.2" stroke-linejoin="round"/>
+      <circle cx="24" cy="24" r="4.5" fill="none" stroke="#c4b5fd" stroke-width="2.2"/>
+    </g>
+    <g font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+      <text x="28" y="112" font-size="20" font-weight="700" fill="#f8fafc">Supervise coding agents</text>
+      <text x="28" y="144" font-size="14.5" fill="#94a3b8">Drive Codex CLI, Claude Code, OpenCode</text>
+      <text x="28" y="166" font-size="14.5" fill="#94a3b8">and Antigravity. Classify what is on</text>
+      <text x="28" y="188" font-size="14.5" fill="#94a3b8">screen; a timeout is never a result.</text>
+    </g>
+    <text x="28" y="224" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12.5" fill="#c4b5fd">RUNNING &#8594; IDLE &#8594; COMPLETED</text>
+  </g>
+
+  <!-- Card 3: approval-first -->
+  <g transform="translate(848 148)">
+    <rect width="368" height="248" rx="18" fill="url(#card)" stroke="#22304f"/>
+    <rect x="24" y="0" width="320" height="3" rx="1.5" fill="#f472b6" opacity="0.8"/>
+    <g transform="translate(28 28)">
+      <rect width="48" height="48" rx="12" fill="#f472b6" fill-opacity="0.14" stroke="#f472b6" stroke-opacity="0.5"/>
+      <path d="M24 10 L36 14.5 V23 C36 31 31 36 24 39 C17 36 12 31 12 23 V14.5 Z" fill="none" stroke="#f9a8d4" stroke-width="2.2" stroke-linejoin="round"/>
+      <path d="M18.5 24 L22.5 28 L30 20.5" fill="none" stroke="#f9a8d4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <g font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+      <text x="28" y="112" font-size="20" font-weight="700" fill="#f8fafc">Approval-first</text>
+      <text x="28" y="144" font-size="14.5" fill="#94a3b8">Trust, login and approval prompts are</text>
+      <text x="28" y="166" font-size="14.5" fill="#94a3b8">shown to you verbatim. Never picks</text>
+      <text x="28" y="188" font-size="14.5" fill="#94a3b8">"always allow" unless you asked.</text>
+    </g>
+    <text x="28" y="224" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12.5" fill="#f9a8d4">AWAITING_HUMAN &#8594; your decision</text>
+  </g>
+
+  <!-- Card 4: verified completion -->
+  <g transform="translate(64 420)">
+    <rect width="368" height="248" rx="18" fill="url(#card)" stroke="#22304f"/>
+    <rect x="24" y="0" width="320" height="3" rx="1.5" fill="#34d399" opacity="0.8"/>
+    <g transform="translate(28 28)">
+      <rect width="48" height="48" rx="12" fill="#34d399" fill-opacity="0.14" stroke="#34d399" stroke-opacity="0.5"/>
+      <circle cx="24" cy="24" r="13" fill="none" stroke="#6ee7b7" stroke-width="2.2"/>
+      <path d="M18 24.5 L22.5 29 L30.5 20" fill="none" stroke="#6ee7b7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <g font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+      <text x="28" y="112" font-size="20" font-weight="700" fill="#f8fafc">Verified completion</text>
+      <text x="28" y="144" font-size="14.5" fill="#94a3b8">Fresh nonce markers, real exit codes</text>
+      <text x="28" y="166" font-size="14.5" fill="#94a3b8">and artifacts the agent inspected,</text>
+      <text x="28" y="188" font-size="14.5" fill="#94a3b8">not another agent's "done".</text>
+    </g>
+    <text x="28" y="224" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12.5" fill="#6ee7b7">GT_k3x9_EXIT=0</text>
+  </g>
+
+  <!-- Card 5: installer -->
+  <g transform="translate(456 420)">
+    <rect width="368" height="248" rx="18" fill="url(#card)" stroke="#22304f"/>
+    <rect x="24" y="0" width="320" height="3" rx="1.5" fill="#fbbf24" opacity="0.8"/>
+    <g transform="translate(28 28)">
+      <rect width="48" height="48" rx="12" fill="#fbbf24" fill-opacity="0.14" stroke="#fbbf24" stroke-opacity="0.5"/>
+      <path d="M24 11 V28" stroke="#fcd34d" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M17.5 21.5 L24 28 L30.5 21.5" fill="none" stroke="#fcd34d" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M12 30 V35 A2 2 0 0 0 14 37 H34 A2 2 0 0 0 36 35 V30" fill="none" stroke="#fcd34d" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <g font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+      <text x="28" y="112" font-size="20" font-weight="700" fill="#f8fafc">One-command install</text>
+      <text x="28" y="144" font-size="14.5" fill="#94a3b8">Registers Cursor, VS Code, Codex,</text>
+      <text x="28" y="166" font-size="14.5" fill="#94a3b8">Claude, OpenCode, Antigravity, Gemini</text>
+      <text x="28" y="188" font-size="14.5" fill="#94a3b8">and Windsurf, with a backup of each file.</text>
+    </g>
+    <text x="28" y="224" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12.5" fill="#fcd34d">node install.mjs --dry-run</text>
+  </g>
+
+  <!-- Card 6: pinned and tested -->
+  <g transform="translate(848 420)">
+    <rect width="368" height="248" rx="18" fill="url(#card)" stroke="#22304f"/>
+    <rect x="24" y="0" width="320" height="3" rx="1.5" fill="#60a5fa" opacity="0.8"/>
+    <g transform="translate(28 28)">
+      <rect width="48" height="48" rx="12" fill="#60a5fa" fill-opacity="0.14" stroke="#60a5fa" stroke-opacity="0.5"/>
+      <rect x="14" y="22" width="20" height="15" rx="3" fill="none" stroke="#93c5fd" stroke-width="2.2"/>
+      <path d="M18 22 V18 A6 6 0 0 1 30 18 V22" fill="none" stroke="#93c5fd" stroke-width="2.2" stroke-linecap="round"/>
+      <circle cx="24" cy="29.5" r="1.8" fill="#93c5fd"/>
+    </g>
+    <g font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+      <text x="28" y="112" font-size="20" font-weight="700" fill="#f8fafc">Pinned and tested</text>
+      <text x="28" y="144" font-size="14.5" fill="#94a3b8">terminal-use 0.2.1 locked by SHA-512,</text>
+      <text x="28" y="166" font-size="14.5" fill="#94a3b8">installed without scripts. Tested on</text>
+      <text x="28" y="188" font-size="14.5" fill="#94a3b8">Linux, macOS and Windows, x64 + ARM64.</text>
+    </g>
+    <text x="28" y="224" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12.5" fill="#93c5fd">npm run verify</text>
+  </g>
+</svg>

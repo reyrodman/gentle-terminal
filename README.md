@@ -43,6 +43,8 @@ Most agent shell tools run one command and hand back its output. That breaks the
 
 ## Features
 
+<img src="docs/assets/capabilities.svg" alt="Six capabilities: real terminals and TUIs, supervising coding agents by state, approval-first prompts, verified completion, a one-command installer for nine clients, and a pinned, tested runtime" width="100%">
+
 - 🖥️ **Real terminals, not command runners.** Full PTY with colors, cursor movement and alternate screen, readable as text or PNG screenshots (powered by terminal-use).
 - 🛡️ **Approval-first Agent Skill.** A compact [`SKILL.md`](SKILL.md) (about 6 KB) with hard rules, an eleven-state decision table and an efficient call loop. Specialized guidance (authorization, recovery, Windows, engine limits, agent supervision) is loaded only when needed.
 - 🤖 **Supervise other coding agents.** A [state-based workflow](references/workflow.md) with versioned, observed signals for Codex CLI, OpenCode, Antigravity CLI and Claude Code startup.
@@ -192,20 +194,13 @@ More prompts, including REPLs, full-screen editors and long builds: [`examples/p
 
 ## How it works
 
-```mermaid
-flowchart LR
-    U([You]) -->|task + approval policy| A[AI agent<br/>Claude Code · Codex · Cursor · OpenCode]
-    A -->|reads| S[[SKILL.md<br/>hard rules · 11 states · on-demand references]]
-    A -->|MCP stdio| L[launch.mjs<br/>Node/platform guards]
-    L -->|same process| T[terminal-use 0.2.1<br/>pinned · SHA-512 verified]
-    T --> P[Real PTY + xterm emulator]
-    P --> X[shells · REPLs · TUIs · other agents]
-    A -.->|trust / login / approval prompts| U
-```
+<img src="docs/assets/architecture.svg" alt="You give an AI agent a task; the agent reads SKILL.md and talks MCP over stdio to launch.mjs, which imports the pinned terminal-use 0.2.1 in the same Node process to drive a real PTY; trust, login and approval prompts come back to you" width="100%">
 
 1. **`launch.mjs`** checks Node (>= 22.12) and platform, then imports the official `terminal-use` binary **in the same process**, so arguments, stdio, signals and exit codes behave exactly as upstream. No child wrapper, no extra engine. Its only environment change: an inherited empty or `dumb` `TERM` becomes `xterm-256color`, matching the emulator, so TUIs started from IDE or agent shells still run on Windows (Linux and macOS sessions always get `xterm-256color`).
 2. **`runtime/`** holds a lockfile that pins `terminal-use@0.2.1` by registry integrity. Each machine installs its own platform-specific prebuilt binaries; `node_modules` is never shipped.
 3. **`SKILL.md`** encodes the operating policy: classify the screen into one of eleven states after every response, stop at human decisions, prove completion with fresh markers, verify artifacts before follow-ups, exit naturally and clean up owned sessions. The files in **`references/`** are read on demand only.
+
+<img src="docs/assets/states.svg" alt="The eleven observable states: STARTING, READY, RUNNING, IDLE and COMPLETED on the main path; AWAITING_HUMAN and AWAITING_PROGRAM_INPUT branch from RUNNING; FAILED, EXITED, UNKNOWN and RECOVERING off the main path" width="100%">
 
 The server also publishes the upstream `terminal-use` skill over MCP (`skills/list`) for hosts that support that extension. gentle-terminal's skill already covers routine use, so agents load the upstream text only for its key and TUI recipes ([details](references/engine.md#one-skill-not-two)).
 

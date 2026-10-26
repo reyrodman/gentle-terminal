@@ -6,7 +6,8 @@ import { fileURLToPath } from 'node:url';
 const root = new URL('../', import.meta.url);
 const expected = [
   'CHANGELOG.md', 'LICENSE', 'README.md', 'SKILL.md', 'THIRD_PARTY_NOTICES.md',
-  'bench/bench.mjs', 'docs/assets/banner.svg',
+  'bench/bench.mjs', 'docs/assets/architecture.svg', 'docs/assets/banner.svg',
+  'docs/assets/capabilities.svg', 'docs/assets/states.svg',
   'examples/README.md', 'examples/claude-desktop/claude_desktop_config.json',
   'examples/codex/config.toml', 'examples/cursor/mcp.json',
   'examples/opencode/opencode.json', 'examples/prompts.md', 'examples/vscode/mcp.json',
