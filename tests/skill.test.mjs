@@ -86,11 +86,13 @@ test('automatic mode keeps every hard limit with the user', () => {
     'persistent options': /^\s*- Prompts that offer only persistent options/m,
     'uncertain counts as a hard limit': /uncertain[^\n]*hard limit|not sure[^\n]*hard limit/i,
     'one-time option only': /narrowest one-time option/i,
-    'no option that approves future actions': /Never an option that approves future actions/,
+    'session option only for narrow approvals': /session option[^\n]*only when[^\n]*read-only tool[^\n]*exact command/i,
+    'never a session option for broad tools': /never for a tool that runs any command, edits any file or reaches the network/i,
     'requested edits are covered': /Edits the task asked for[^\n]*are covered/,
     'record every automatic answer': /record[^\n]*every/i
   };
   assert.ok(section, 'authorization.md has an "Automatic mode" section');
+  assert.match(auth, /Standard mode[^\n]*recommend[^\n]*session option/i, 'Standard mode can recommend a safe session option');
   for (const [limit, pattern] of Object.entries(limits)) assert.match(section, pattern, limit);
 });
 

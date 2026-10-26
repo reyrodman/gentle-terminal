@@ -2,7 +2,7 @@
 // Deterministic stand-in for an interactive coding agent. It never calls a
 // model or the network and writes only inside its cwd. Usage:
 //   node fake-agent.mjs <scenario>
-// Scenarios: work | false-success | approval | inject | hang | crash | alt | flood | composer
+// Scenarios: work | false-success | approval | inject | hang | crash | alt | flood | composer | session
 import { createInterface } from 'node:readline';
 import { writeFileSync } from 'node:fs';
 
@@ -56,6 +56,17 @@ async function approval() {
   out(`approval: ${choice}\n`);
 }
 
+// Tool prompt shaped like Antigravity CLI's: a session option approves every
+// later call of that tool without asking again.
+const sessionTools = new Set();
+async function toolApproval(tool, detail) {
+  if (sessionTools.has(tool)) { out(`${tool} (allowed for this conversation)\n`); return; }
+  out(`Allow calling this tool?\n  ${tool}: ${detail}\n  1. Yes, once\n  2. Yes, for this conversation\n  3. Yes, always (save to settings.json)\n  4. No, once\n`);
+  const choice = await ask('choose> ');
+  if (choice === '2') sessionTools.add(tool);
+  out(`${tool}: ${choice}\n`);
+}
+
 if (scenario === 'alt') {
   out('\x1b[?1049h\x1b[H\x1b[2JFAKE TUI - type q and Enter to quit\n');
   while ((await ask('tui> ')) !== 'q');
@@ -89,6 +100,11 @@ for (;;) {
   }
   await work(1200);
   if (scenario === 'approval' || scenario === 'inject') await approval();
+  if (scenario === 'session') {
+    await toolApproval('view_file', 'README.md (read-only)');
+    await toolApproval('run_command', 'npm test (runs any shell command)');
+    await toolApproval('view_file', 'package.json (read-only)');
+  }
   writeFileSync(scenario === 'false-success' ? 'reslt.txt' : 'result.txt', 'ok\n');
   out('Worked for 1s\nDone. Created result.txt\n');
 }
