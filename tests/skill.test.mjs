@@ -78,6 +78,7 @@ test('automatic mode keeps every hard limit with the user', () => {
   const limits = {
     'credentials and secrets': /credentials?[^\n]*(login|2FA|secret)/i,
     'deleting what the task did not create': /delet[^\n]*the task did not create/i,
+    'deleting stays a hard limit even when the task asked to clean': /delet[^\n]*even when the task asked to change or clean them/i,
     'operating system and elevation': /^\s*- Changes to the operating system[^\n]*elevation/m,
     'system-wide installs and downloaded scripts': /^\s*- Installing[^\n]*outside the workspace[^\n]*scripts downloaded/m,
     'publishing only when asked': /publish[^\n]*only when the task asked/i,
