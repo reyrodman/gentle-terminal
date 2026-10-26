@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
+  <title id="title">The eleven observable states of a gentle-terminal session</title>
+  <desc id="desc">Main path STARTING, READY, RUNNING, IDLE, COMPLETED. RUNNING can stop at AWAITING_HUMAN, where you decide, or AWAITING_PROGRAM_INPUT, where the agent sends the specified answer once. IDLE goes to FAILED on a verification mismatch; EXITED becomes COMPLETED only after verification. UNKNOWN and RECOVERING are reachable from any state. A timeout is not a state.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#090e1c"/>
+      <stop offset="1" stop-color="#121a36"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#1a2547" stroke-width="1"/>
+    </pattern>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 Z" fill="#7c8db5"/>
+    </marker>
+  </defs>
+
+  <rect width="1280" height="640" rx="28" fill="url(#bg)"/>
+  <rect width="1280" height="640" rx="28" fill="url(#grid)" opacity="0.45"/>
+
+  <g font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+    <text x="80" y="66" font-size="28" font-weight="700" fill="#f8fafc">Eleven observable states</text>
+    <text x="80" y="96" font-size="15.5" fill="#94a3b8">Every read of the screen is classified before the agent acts. A timeout is never a state.</text>
+  </g>
+
+  <!-- Edges -->
+  <g stroke="#7c8db5" stroke-width="2" fill="none">
+    <path d="M240 320 H312" marker-end="url(#arrow)"/>
+    <path d="M480 320 H552" marker-end="url(#arrow)"/>
+    <path d="M720 320 H792" marker-end="url(#arrow)"/>
+    <path d="M960 320 H1032" marker-end="url(#arrow)"/>
+    <path d="M612 282 L542 208" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+    <path d="M668 282 L778 208" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+    <path d="M880 358 V448" marker-end="url(#arrow)"/>
+    <path d="M1120 448 V364" marker-end="url(#arrow)"/>
+  </g>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11.5" fill="#94a3b8">
+    <text x="276" y="308" text-anchor="middle">prompt</text>
+    <text x="516" y="308" text-anchor="middle">type once</text>
+    <text x="756" y="308" text-anchor="middle">re-read</text>
+    <text x="996" y="308" text-anchor="middle">verify</text>
+    <text x="566" y="252" text-anchor="end">you decide</text>
+    <text x="734" y="252">send once</text>
+    <text x="892" y="408">mismatch</text>
+    <text x="1132" y="408">+ verified</text>
+  </g>
+
+  <!-- Main row -->
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+    <g transform="translate(80 284)">
+      <rect width="160" height="72" rx="14" fill="#38bdf8" fill-opacity="0.10" stroke="#38bdf8" stroke-opacity="0.6"/>
+      <text x="80" y="31" text-anchor="middle" font-size="13.5" font-weight="700" fill="#7dd3fc">STARTING</text>
+      <text x="80" y="53" text-anchor="middle" font-size="11.5" fill="#94a3b8" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">banner, no prompt yet</text>
+    </g>
+    <g transform="translate(320 284)">
+      <rect width="160" height="72" rx="14" fill="#2dd4bf" fill-opacity="0.10" stroke="#2dd4bf" stroke-opacity="0.6"/>
+      <text x="80" y="31" text-anchor="middle" font-size="13.5" font-weight="700" fill="#5eead4">READY</text>
+      <text x="80" y="53" text-anchor="middle" font-size="11.5" fill="#94a3b8" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">stable input prompt</text>
+    </g>
+    <g transform="translate(560 284)">
+      <rect width="160" height="72" rx="14" fill="#fbbf24" fill-opacity="0.12" stroke="#fbbf24" stroke-opacity="0.7"/>
+      <text x="80" y="31" text-anchor="middle" font-size="13.5" font-weight="700" fill="#fcd34d">RUNNING</text>
+      <text x="80" y="53" text-anchor="middle" font-size="11.5" fill="#94a3b8" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">spinner, timer, output</text>
+    </g>
+    <g transform="translate(800 284)">
+      <rect width="160" height="72" rx="14" fill="#a78bfa" fill-opacity="0.10" stroke="#a78bfa" stroke-opacity="0.6"/>
+      <text x="80" y="31" text-anchor="middle" font-size="13.5" font-weight="700" fill="#c4b5fd">IDLE</text>
+      <text x="80" y="53" text-anchor="middle" font-size="11.5" fill="#94a3b8" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">prompt back, unchanged</text>
+    </g>
+    <g transform="translate(1040 284)">
+      <rect width="160" height="72" rx="14" fill="#34d399" fill-opacity="0.14" stroke="#34d399" stroke-opacity="0.8" stroke-width="1.5"/>
+      <text x="80" y="31" text-anchor="middle" font-size="13.5" font-weight="700" fill="#6ee7b7">COMPLETED</text>
+      <text x="80" y="53" text-anchor="middle" font-size="11.5" fill="#94a3b8" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">evidence verified</text>
+    </g>
+  </g>
+
+  <!-- Upper row: waiting on someone -->
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+    <g transform="translate(400 132)">
+      <rect width="230" height="72" rx="14" fill="#f472b6" fill-opacity="0.12" stroke="#f472b6" stroke-opacity="0.7"/>
+      <text x="115" y="31" text-anchor="middle" font-size="13.5" font-weight="700" fill="#f9a8d4">AWAITING_HUMAN</text>
+      <text x="115" y="53" text-anchor="middle" font-size="11.5" fill="#94a3b8" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">trust, login, approval prompt</text>
+    </g>
+    <g transform="translate(660 132)">
+      <rect width="260" height="72" rx="14" fill="#60a5fa" fill-opacity="0.10" stroke="#60a5fa" stroke-opacity="0.6"/>
+      <text x="130" y="31" text-anchor="middle" font-size="13.5" font-weight="700" fill="#93c5fd">AWAITING_PROGRAM_INPUT</text>
+      <text x="130" y="53" text-anchor="middle" font-size="11.5" fill="#94a3b8" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">answer the task already specifies</text>
+    </g>
+  </g>
+
+  <!-- Lower row: off the happy path -->
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+    <g transform="translate(80 452)">
+      <rect width="160" height="72" rx="14" fill="#94a3b8" fill-opacity="0.06" stroke="#94a3b8" stroke-opacity="0.55" stroke-dasharray="5 4"/>
+      <text x="80" y="31" text-anchor="middle" font-size="13.5" font-weight="700" fill="#cbd5e1">UNKNOWN</text>
+      <text x="80" y="53" text-anchor="middle" font-size="11.5" fill="#94a3b8" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">re-read once, then ask</text>
+    </g>
+    <g transform="translate(320 452)">
+      <rect width="160" height="72" rx="14" fill="#fb923c" fill-opacity="0.08" stroke="#fb923c" stroke-opacity="0.55" stroke-dasharray="5 4"/>
+      <text x="80" y="31" text-anchor="middle" font-size="13.5" font-weight="700" fill="#fdba74">RECOVERING</text>
+      <text x="80" y="53" text-anchor="middle" font-size="11.5" fill="#94a3b8" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">respawned: state lost</text>
+    </g>
+    <text x="520" y="484" font-size="11.5" fill="#64748b">&#8592; reachable from any state</text>
+    <text x="538" y="504" font-size="11.5" fill="#64748b">or when evidence is unclear</text>
+    <g transform="translate(800 452)">
+      <rect width="160" height="72" rx="14" fill="#f87171" fill-opacity="0.10" stroke="#f87171" stroke-opacity="0.6"/>
+      <text x="80" y="31" text-anchor="middle" font-size="13.5" font-weight="700" fill="#fca5a5">FAILED</text>
+      <text x="80" y="53" text-anchor="middle" font-size="11.5" fill="#94a3b8" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">report, never auto-repeat</text>
+    </g>
+    <g transform="translate(1040 452)">
+      <rect width="160" height="72" rx="14" fill="#94a3b8" fill-opacity="0.08" stroke="#94a3b8" stroke-opacity="0.6"/>
+      <text x="80" y="31" text-anchor="middle" font-size="13.5" font-weight="700" fill="#cbd5e1">EXITED</text>
+      <text x="80" y="53" text-anchor="middle" font-size="11.5" fill="#94a3b8" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">exit code reported</text>
+    </g>
+  </g>
+
+  <g font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#64748b">
+    <text x="80" y="588">Classified from what is on screen: prompts, spinners, timers, exit codes and fresh nonce markers. Full table in SKILL.md.</text>
+  </g>
+</svg>

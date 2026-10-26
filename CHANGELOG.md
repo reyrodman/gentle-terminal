@@ -6,6 +6,10 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+
+- README artwork: a redesigned banner showing a supervised Codex session moving through its observed states, plus three new diagrams: capabilities (`docs/assets/capabilities.svg`), the eleven-state machine (`docs/assets/states.svg`) and the architecture (`docs/assets/architecture.svg`, replacing the Mermaid chart). `docs/assets/social-preview.png` is a 1280x640 render of the banner for the repository's social preview; it is not part of the package.
+
 ## [1.2.1] - 2026-10-24
 
 ### Fixed

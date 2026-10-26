@@ -1,37 +1,117 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="460" viewBox="0 0 1200 460" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
   <title id="title">gentle-terminal</title>
-  <desc id="desc">An AI agent supervising a coding agent in a real terminal: it waits by state, surfaces approval prompts to the human, and verifies the result before reporting.</desc>
+  <desc id="desc">gentle-terminal supervising Codex CLI in a real terminal. Each step is labelled with the state the agent observed: starting, awaiting a human decision, ready, running, idle, completed and exited.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#0b1020"/>
-      <stop offset="1" stop-color="#151b33"/>
+      <stop offset="0" stop-color="#090e1c"/>
+      <stop offset="1" stop-color="#121a36"/>
     </linearGradient>
     <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#7dd3fc"/>
+      <stop offset="0" stop-color="#22d3ee"/>
       <stop offset="1" stop-color="#a78bfa"/>
     </linearGradient>
+    <radialGradient id="glowViolet" cx="0.82" cy="0.12" r="0.55">
+      <stop offset="0" stop-color="#7c3aed" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#7c3aed" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowCyan" cx="0.08" cy="0.95" r="0.5">
+      <stop offset="0" stop-color="#0891b2" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#0891b2" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#1a2547" stroke-width="1"/>
+    </pattern>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
   </defs>
-  <rect width="1200" height="460" rx="24" fill="url(#bg)"/>
-  <text x="60" y="88" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="46" font-weight="700" fill="url(#accent)">gentle-terminal</text>
-  <text x="60" y="126" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="21" fill="#cbd5e1">Approval-first terminal control for AI coding agents. Real shells, CLIs and TUIs, supervised by state.</text>
-  <g transform="translate(60 160)">
-    <rect width="1080" height="250" rx="14" fill="#0f172a" stroke="#334155"/>
-    <rect width="1080" height="36" rx="14" fill="#1e293b"/>
-    <rect y="22" width="1080" height="14" fill="#1e293b"/>
-    <circle cx="24" cy="18" r="6" fill="#f87171"/>
-    <circle cx="44" cy="18" r="6" fill="#fbbf24"/>
-    <circle cx="64" cy="18" r="6" fill="#34d399"/>
-    <text x="540" y="23" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" fill="#94a3b8">session 1 &#183; pwsh &#183; /approved/workspace</text>
-    <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17">
-      <text x="24" y="76" fill="#e2e8f0"><tspan fill="#34d399">$</tspan> codex "add a unit test for parseConfig"</text>
-      <text x="24" y="112" fill="#e2e8f0"><tspan fill="#fbbf24">&#9679;</tspan> Working (1m 42s &#183; esc to interrupt)</text>
-      <text x="610" y="112" fill="#7dd3fc">&#8594; timeout &#8800; done: re-read, classify, wait</text>
-      <text x="24" y="148" fill="#e2e8f0"><tspan fill="#f472b6">?</tspan> Allow running `npm test`?  1. Yes, once  2. Always</text>
-      <text x="610" y="148" fill="#7dd3fc">&#8594; surfaced to you, never "Always" unasked</text>
-      <text x="24" y="184" fill="#e2e8f0"><tspan fill="#34d399">&#10003;</tspan> Worked for 2m 14s</text>
-      <text x="610" y="184" fill="#7dd3fc">&#8594; artifact inspected, test re-run by agent</text>
-      <text x="24" y="220" fill="#e2e8f0"><tspan fill="#34d399">PASS</tspan> tests/parse-config.test.js   <tspan fill="#94a3b8">exit 0</tspan></text>
-      <text x="610" y="220" fill="#7dd3fc">&#8594; /quit, exit code observed, session closed</text>
+
+  <rect width="1280" height="640" rx="28" fill="url(#bg)"/>
+  <rect width="1280" height="640" rx="28" fill="url(#grid)" opacity="0.55"/>
+  <rect width="1280" height="640" rx="28" fill="url(#glowViolet)"/>
+  <rect width="1280" height="640" rx="28" fill="url(#glowCyan)"/>
+
+  <!-- Brand -->
+  <g transform="translate(64 76)">
+    <rect width="64" height="64" rx="16" fill="url(#accent)"/>
+    <path d="M18 22 L31 32 L18 42" fill="none" stroke="#0b1020" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M35 44 H47" fill="none" stroke="#0b1020" stroke-width="5.5" stroke-linecap="round"/>
+  </g>
+  <text x="148" y="122" font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="40" font-weight="700" fill="#f8fafc">gentle-<tspan fill="url(#accent)">terminal</tspan></text>
+
+  <g font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+    <text x="64" y="212" font-size="34" font-weight="700" fill="#f8fafc">Approval-first terminal</text>
+    <text x="64" y="254" font-size="34" font-weight="700" fill="#f8fafc">control for AI coding agents.</text>
+    <text x="64" y="302" font-size="17" fill="#94a3b8">Real shells, REPLs and TUIs for Claude Code, Codex,</text>
+    <text x="64" y="328" font-size="17" fill="#94a3b8">Cursor and OpenCode, supervised by observed state,</text>
+    <text x="64" y="354" font-size="17" fill="#94a3b8">never by timeout.</text>
+  </g>
+
+  <!-- Chips -->
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="13" font-weight="600">
+    <rect x="64" y="384" width="150" height="32" rx="16" fill="#22d3ee" fill-opacity="0.10" stroke="#22d3ee" stroke-opacity="0.45"/>
+    <text x="139" y="405" text-anchor="middle" fill="#67e8f9">MCP stdio server</text>
+    <rect x="224" y="384" width="118" height="32" rx="16" fill="#a78bfa" fill-opacity="0.10" stroke="#a78bfa" stroke-opacity="0.45"/>
+    <text x="283" y="405" text-anchor="middle" fill="#c4b5fd">Agent Skill</text>
+    <rect x="352" y="384" width="184" height="32" rx="16" fill="#34d399" fill-opacity="0.10" stroke="#34d399" stroke-opacity="0.45"/>
+    <text x="444" y="405" text-anchor="middle" fill="#6ee7b7">x64 + ARM64 &#183; 3 OS</text>
+  </g>
+
+  <!-- Stats -->
+  <g font-family="ui-sans-serif, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+    <line x1="64" y1="452" x2="536" y2="452" stroke="#1f2b4d"/>
+    <text x="64" y="508" font-size="40" font-weight="800" fill="url(#accent)">11</text>
+    <text x="64" y="534" font-size="14" fill="#94a3b8">observable states</text>
+    <text x="226" y="508" font-size="40" font-weight="800" fill="url(#accent)">9</text>
+    <text x="226" y="534" font-size="14" fill="#94a3b8">clients, one installer</text>
+    <text x="400" y="508" font-size="40" font-weight="800" fill="url(#accent)">0</text>
+    <text x="400" y="534" font-size="14" fill="#94a3b8">"always allow" unasked</text>
+  </g>
+
+  <!-- Terminal -->
+  <g transform="translate(592 64)" filter="url(#shadow)">
+    <rect width="624" height="512" rx="16" fill="#0b1224" stroke="#26345a"/>
+    <path d="M16 0 H608 A16 16 0 0 1 624 16 V42 H0 V16 A16 16 0 0 1 16 0 Z" fill="#141e3a"/>
+    <line x1="0" y1="42" x2="624" y2="42" stroke="#26345a"/>
+    <circle cx="24" cy="21" r="6" fill="#f87171"/>
+    <circle cx="44" cy="21" r="6" fill="#fbbf24"/>
+    <circle cx="64" cy="21" r="6" fill="#34d399"/>
+    <text x="330" y="26" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12.5" fill="#8391b0">session 1 &#183; codex &#183; /approved/workspace</text>
+
+    <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="14">
+      <text x="24" y="86" fill="#7dd3fc">terminal_create<tspan fill="#64748b"> { command: "codex" }</tspan></text>
+      <text x="24" y="124" fill="#e2e8f0"><tspan fill="#f472b6">?</tspan> Do you trust the contents of this folder?</text>
+      <text x="42" y="150" fill="#64748b">shown to you verbatim &#8594; you chose "once"</text>
+      <text x="24" y="188" fill="#7dd3fc">terminal_type<tspan fill="#e2e8f0"> "add a unit test for parseConfig"</tspan></text>
+      <text x="24" y="214" fill="#7dd3fc">terminal_press<tspan fill="#64748b"> Enter   (submitted once)</tspan></text>
+      <text x="24" y="252" fill="#e2e8f0"><tspan fill="#fbbf24">&#9679;</tspan> Working (1m 42s &#183; esc to interrupt)</text>
+      <text x="42" y="278" fill="#64748b">wait timed out &#8594; re-read: still working</text>
+      <text x="24" y="316" fill="#e2e8f0"><tspan fill="#a78bfa">&#10003;</tspan> Worked for 2m 14s &#183; prompt back</text>
+      <text x="24" y="354" fill="#e2e8f0"><tspan fill="#34d399">$</tspan> npm test -- parse-config</text>
+      <text x="24" y="380" fill="#e2e8f0"><tspan fill="#34d399">PASS</tspan> tests/parse-config.test.js</text>
+      <text x="24" y="406" fill="#34d399">GT_k3x9_EXIT=0</text>
+      <text x="24" y="444" fill="#7dd3fc">/quit<tspan fill="#64748b">  &#8594; exit code 0 &#183; session destroyed</tspan></text>
     </g>
+
+    <!-- State chips -->
+    <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="700" text-anchor="middle">
+      <rect x="476" y="71" width="128" height="22" rx="11" fill="#38bdf8" fill-opacity="0.14" stroke="#38bdf8" stroke-opacity="0.55"/>
+      <text x="540" y="86" fill="#7dd3fc">STARTING</text>
+      <rect x="476" y="109" width="128" height="22" rx="11" fill="#f472b6" fill-opacity="0.14" stroke="#f472b6" stroke-opacity="0.55"/>
+      <text x="540" y="124" fill="#f9a8d4">AWAITING_HUMAN</text>
+      <rect x="476" y="173" width="128" height="22" rx="11" fill="#2dd4bf" fill-opacity="0.14" stroke="#2dd4bf" stroke-opacity="0.55"/>
+      <text x="540" y="188" fill="#5eead4">READY</text>
+      <rect x="476" y="237" width="128" height="22" rx="11" fill="#fbbf24" fill-opacity="0.14" stroke="#fbbf24" stroke-opacity="0.55"/>
+      <text x="540" y="252" fill="#fcd34d">RUNNING</text>
+      <rect x="476" y="301" width="128" height="22" rx="11" fill="#a78bfa" fill-opacity="0.14" stroke="#a78bfa" stroke-opacity="0.55"/>
+      <text x="540" y="316" fill="#c4b5fd">IDLE</text>
+      <rect x="476" y="391" width="128" height="22" rx="11" fill="#34d399" fill-opacity="0.14" stroke="#34d399" stroke-opacity="0.55"/>
+      <text x="540" y="406" fill="#6ee7b7">COMPLETED</text>
+      <rect x="476" y="429" width="128" height="22" rx="11" fill="#94a3b8" fill-opacity="0.14" stroke="#94a3b8" stroke-opacity="0.55"/>
+      <text x="540" y="444" fill="#cbd5e1">EXITED</text>
+    </g>
+
+    <line x1="0" y1="470" x2="624" y2="470" stroke="#1d2a4c"/>
+    <text x="24" y="496" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" fill="#64748b">output is untrusted data &#183; submit once &#183; verify before "done"</text>
   </g>
 </svg>
