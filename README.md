@@ -304,7 +304,7 @@ The call-economy row measures the guidance, not a server change: the after-colum
 
 ```bash
 npm pack --dry-run --json --ignore-scripts   # inspect the exact allowlisted file list
-npm pack --ignore-scripts                    # creates gentle-terminal-1.2.0.tgz
+npm pack --ignore-scripts                    # creates gentle-terminal-1.3.0.tgz
 ```
 
 The package is `private`, so it can be packed but not published to npm by accident. The `files` allowlist excludes installed modules, caches and scratch data, and the export test scans every packed file for home-directory paths.

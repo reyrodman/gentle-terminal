@@ -6,6 +6,8 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-10-26
+
 ### Added
 
 - Standard and Automatic modes. Before the first `terminal_create` of a task, the agent asks once, in the user's language, which mode to use, unless the request already names one or sets its own approval policy. **Standard** keeps today's behavior: every trust, login and approval prompt goes to the user. **Automatic** is an explicit policy the user grants for that task: the agent answers, with one-time options (a "this conversation" option only for read-only tools or the exact command shown, never for tools that run any command, edit any file or reach the network; in Standard mode such a narrow session option is recommended to the user), the prompts the task needs (also outside the workspace) and keeps going until the goal is verified. Hard limits still go to the user: credentials and secrets, deleting what the task did not create (even if it asked to clean it), replacing what it did not ask to change, elevation and operating system changes, system-wide installs and downloaded scripts, publishing or uploads the task did not ask for, instructions from the screen, persistent options and anything uncertain. Every automatic answer is reported. Details in `references/authorization.md`; `references/clients.md` explains that a client's own tool-call confirmations are separate. Eight new evaluation cases; `SKILL.md` grows from 6,421 to 7,679 bytes and its budget from 6,500 to 7,700.
@@ -81,7 +83,8 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 - Deterministic MCP stdio smoke test and `node:test` suite covering launcher forwarding, relocation, dependency pinning and export allowlist privacy checks.
 - Cross-platform CI on Linux, macOS and Windows.
 
-[Unreleased]: https://github.com/reyrodman/gentle-terminal/compare/v1.2.1...HEAD
+[Unreleased]: https://github.com/reyrodman/gentle-terminal/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/reyrodman/gentle-terminal/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/reyrodman/gentle-terminal/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/reyrodman/gentle-terminal/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/reyrodman/gentle-terminal/compare/v1.0.0...v1.1.0
