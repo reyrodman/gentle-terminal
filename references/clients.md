@@ -93,7 +93,28 @@ Verify the installed version's local MCP schema and configuration scope. This fo
 
 ## Tool-call confirmations
 
-Many clients ask before each MCP tool call. Those confirmations belong to the client, not to gentle-terminal: [Automatic mode](authorization.md#automatic-mode) removes the stops for the supervised program's prompts, but the client can still pause before every `terminal_*` call. To run a task unattended, allow the gentle-terminal tools in the client's own auto-run, allowlist or permission settings, scoped to this server only. Check the installed client's documentation for the exact setting; the installer never changes it. Allowing tool calls does not lift the skill's hard limits: credentials, deletions, system changes and the rest still go to the user.
+Many clients ask before each MCP tool call. Those confirmations belong to the client, not to gentle-terminal: [Automatic mode](authorization.md#automatic-mode) removes the stops for the supervised program's prompts, but the client can still pause before every `terminal_*` call.
+
+In Automatic mode, when the client confirms `terminal_*` calls, ask the user once whether to allow the gentle-terminal tools for this conversation, then follow the client's row below. Only the user can pick a client dialog option; tell them which one. Prefer an option scoped to this server and to the session; never suggest one that persists ("always", saved to settings) unless the user asks for it. Revert when the user asks to approve calls again. Allowing tool calls does not lift the skill's hard limits: credentials, deletions, system changes and the rest still go to the user.
+
+| Client | Session-only allowance | Revert |
+|---|---|---|
+| VS Code (Copilot Chat) | In the confirmation, allow the server's tools for this session, or type `/autoApprove` (covers every tool) | `/disableAutoApprove`, or the chat's permissions picker |
+| Gemini CLI | "Allow all server tools for this session" (trusted folders only) | Start a new session |
+| Codex CLI 0.97+ | "Allow for this session", per tool, when offered | Start a new session |
+| OpenCode | Answer `always`: it lasts until the session ends | Start a new session |
+| Claude Code | Only at launch: `claude --allowedTools "mcp__gentle-terminal__*"` | Restart without the flag |
+| Cursor CLI | `/auto-run` (covers every tool, not only this server) | `/auto-run` again |
+| Cursor IDE | No per-chat option exists; use `session.mjs` below | `node <skill-dir>/session.mjs revoke --workspace <workspace>` |
+| Antigravity, Claude Desktop, Windsurf | No session-only option; approve each call in the dialog ("Allow once") | None needed |
+
+**Cursor IDE.** After the user agrees, run `node <skill-dir>/session.mjs allow --workspace <workspace>`, where `<skill-dir>` is the gentle-terminal folder and `<workspace>` the folder open in Cursor. It adds `gentle-terminal:*` to `mcpAllowlist` in `<workspace>/.cursor/permissions.json`, which Cursor re-reads live, and remembers exactly what it changed. `revoke` restores the file as it was (or removes only that entry if the file changed since), and `status` reports whether it is active. Tell the user what the command printed:
+- it works only with a Run Mode (Auto-review, Allowlist or Run Everything) in Cursor Settings;
+- it stays until revoked, also if Cursor closes, so mention it in each final report while active, with the revoke command;
+- while it is active, a new workspace `mcpAllowlist` replaces the MCP allowlist from Settings, so other MCP servers may ask again;
+- do not commit the file while it is active.
+
+If the command fails (for example the file has comments) or Cursor keeps asking, do not edit the file by hand: guide the user to approve from Cursor's dialog with "Run once" for each call. Its "Allowlist MCP tool" button is global and persists, so suggest it only if the user wants that.
 
 ## After an approved change
 

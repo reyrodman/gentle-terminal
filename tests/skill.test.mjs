@@ -7,8 +7,8 @@ const read = path => readFileSync(new URL(path, root), 'utf8');
 const skill = read('SKILL.md');
 const body = skill.replace(/^---[\s\S]*?---\r?\n/, '');
 // Activation cost budget: the always-loaded instructions. Raise deliberately, with a benchmark.
-// 7500: Standard/Automatic modes keep their hard limits in the always-loaded text.
-const SKILL_BUDGET_BYTES = 7500;
+// 7700: Standard/Automatic modes keep their hard limits and the client allowance pointer in the always-loaded text.
+const SKILL_BUDGET_BYTES = 7700;
 
 test('SKILL.md frontmatter is valid for the upstream Agent Skills parser and in sync with the package', () => {
   const fm = parseFrontmatter(skill);
@@ -94,6 +94,26 @@ test('automatic mode keeps every hard limit with the user', () => {
   assert.ok(section, 'authorization.md has an "Automatic mode" section');
   assert.match(auth, /Standard mode[^\n]*recommend[^\n]*session option/i, 'Standard mode can recommend a safe session option');
   for (const [limit, pattern] of Object.entries(limits)) assert.match(section, pattern, limit);
+});
+
+test('client tool-call confirmations are allowed once per conversation, revertibly', () => {
+  assert.match(body, /client confirms each `terminal_\*` call, ask once to allow them for this conversation[^\n]*revert when the user asks/);
+  const clients = read('references/clients.md');
+  const section = /## Tool-call confirmations\n([\s\S]*?)(?=\n## |$)/.exec(clients)?.[1] ?? '';
+  const rules = {
+    'ask once': /ask the user once whether to allow the gentle-terminal tools for this conversation/,
+    'never a persistent option unasked': /never suggest one that persists[^\n]*unless the user asks/,
+    'hard limits survive': /does not lift the skill's hard limits/,
+    'Cursor IDE uses session.mjs': /\| Cursor IDE \|[^\n]*session\.mjs[^\n]*session\.mjs revoke/,
+    'Cursor needs a Run Mode': /Run Mode \(Auto-review, Allowlist or Run Everything\)/,
+    'Settings allowlist caveat': /replaces the MCP allowlist from Settings/,
+    'dialog fallback': /If the command fails[^\n]*approve from Cursor's dialog/,
+    'global button only on request': /"Allowlist MCP tool" button is global and persists, so suggest it only if the user wants that/
+  };
+  for (const [rule, pattern] of Object.entries(rules)) assert.match(section, pattern, rule);
+  for (const client of ['VS Code', 'Gemini CLI', 'Codex CLI', 'OpenCode', 'Claude Code', 'Cursor CLI', 'Antigravity']) {
+    assert.match(section, new RegExp(`^\\| ${client}[^\\n]*\\|[^\\n]*\\|[^\\n]*\\|$`, 'm'), `${client} row`);
+  }
 });
 
 test('activation evaluation cases cover every required behavior', () => {

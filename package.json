@@ -65,6 +65,7 @@
     "references/workflow.md",
     "runtime/package-lock.json",
     "runtime/package.json",
+    "session.mjs",
     "smoke.mjs",
     "tests/export.test.mjs",
     "tests/fixtures/fake-agent.mjs",
@@ -73,6 +74,7 @@
     "tests/install.test.mjs",
     "tests/launcher.test.mjs",
     "tests/pin.test.mjs",
+    "tests/session.test.mjs",
     "tests/skill.test.mjs",
     "tests/supervision.test.mjs"
   ]

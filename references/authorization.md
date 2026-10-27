@@ -30,7 +30,7 @@ The user chose it when the task started. It is their explicit policy for the pro
 5. **Keep going.** Do not stop between steps for routine prompts or to ask whether to continue. Work until the goal is COMPLETED with verification, a hard limit is reached, or the task FAILED with no safe next step. A program with no progress after several bounded waits is reported to the user, not waited on forever. Rules 4 to 6 of `SKILL.md` still hold: never resubmit, auto-repeat state-changing steps or kill to make progress.
 6. **Record** every automatic answer: the prompt, the option chosen and why the task needed it, plus every hard limit still pending.
 
-Your MCP client may still ask before each `terminal_*` call. That confirmation belongs to the client, not to this skill; see [clients](clients.md#tool-call-confirmations).
+Your MCP client may still ask before each `terminal_*` call. That confirmation belongs to the client, not to this skill: ask the user once to allow the gentle-terminal tools for this conversation, using the client's session-only option or, in Cursor, `session.mjs`; see [clients](clients.md#tool-call-confirmations). It only removes the client's confirmations: every hard limit above still goes to the user.
 
 ## Secrets
 
