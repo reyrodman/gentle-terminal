@@ -14,9 +14,9 @@ const expected = [
   'evals/activation.json', 'install.mjs', 'launch.mjs', 'package.json',
   'references/authorization.md', 'references/clients.md', 'references/engine.md',
   'references/recovery.md', 'references/windows.md', 'references/workflow.md',
-  'runtime/package-lock.json', 'runtime/package.json', 'smoke.mjs',
+  'runtime/package-lock.json', 'runtime/package.json', 'session.mjs', 'smoke.mjs',
   'tests/export.test.mjs', 'tests/fixtures/fake-agent.mjs', 'tests/guards.test.mjs',
-  'tests/helpers/mcp-client.mjs', 'tests/install.test.mjs', 'tests/launcher.test.mjs', 'tests/pin.test.mjs', 'tests/skill.test.mjs', 'tests/supervision.test.mjs'
+  'tests/helpers/mcp-client.mjs', 'tests/install.test.mjs', 'tests/launcher.test.mjs', 'tests/pin.test.mjs', 'tests/session.test.mjs', 'tests/skill.test.mjs', 'tests/supervision.test.mjs'
 ].sort();
 const lifecycle = ['preinstall', 'install', 'postinstall', 'prepare', 'prepack', 'postpack', 'prepublish', 'prepublishOnly'];
 test('local npm export includes only portable files, private metadata and valid links', () => {

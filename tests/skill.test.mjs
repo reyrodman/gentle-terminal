@@ -7,7 +7,8 @@ const read = path => readFileSync(new URL(path, root), 'utf8');
 const skill = read('SKILL.md');
 const body = skill.replace(/^---[\s\S]*?---\r?\n/, '');
 // Activation cost budget: the always-loaded instructions. Raise deliberately, with a benchmark.
-const SKILL_BUDGET_BYTES = 6500;
+// 7700: Standard/Automatic modes keep their hard limits and the client allowance pointer in the always-loaded text.
+const SKILL_BUDGET_BYTES = 7700;
 
 test('SKILL.md frontmatter is valid for the upstream Agent Skills parser and in sync with the package', () => {
   const fm = parseFrontmatter(skill);
@@ -55,7 +56,12 @@ test('safety rules survive any token optimization', () => {
     'shell-correct syntax': /actual shell/,
     'agent input boxes submit with a separate Enter': /Agent input boxes[^\n]*type without it, then `terminal_press` `Enter` once/,
     'wording-free waits': /until: "quiet"/,
-    'a Windows pattern-less wait is a guess': /Windows[^\n]*without `pattern`[^\n]*guess[^\n]*RUNNING/
+    'a Windows pattern-less wait is a guess': /Windows[^\n]*without `pattern`[^\n]*guess[^\n]*RUNNING/,
+    'mode asked once per task in the user language': /ask once per task, in the user's language/i,
+    'standard mode keeps every decision human': /\*\*Standard mode\*\*[^\n]*user decides/,
+    'automatic mode covers only what the task needs': /\*\*Automatic mode\*\*[^\n]*what the task needs/,
+    'automatic mode is the rule 3 policy': /explicit user policy[^\n]*Automatic mode/,
+    'hard limits always go to the user': /hard limit[^\n]*goes to the user/i
   };
   for (const [rule, pattern] of Object.entries(required)) assert.match(body, pattern, rule);
   for (const state of ['STARTING', 'READY', 'RUNNING', 'AWAITING_HUMAN', 'AWAITING_PROGRAM_INPUT', 'IDLE', 'COMPLETED', 'FAILED', 'EXITED', 'UNKNOWN', 'RECOVERING']) {
@@ -64,6 +70,50 @@ test('safety rules survive any token optimization', () => {
   const auth = read('references/authorization.md');
   assert.match(auth, /one-time/i);
   assert.match(auth, /"always", "for this project", "don't ask again"/);
+});
+
+test('automatic mode keeps every hard limit with the user', () => {
+  const auth = read('references/authorization.md');
+  const section = /## Automatic mode\n([\s\S]*?)(?=\n## |$)/.exec(auth)?.[1] ?? '';
+  const limits = {
+    'credentials and secrets': /credentials?[^\n]*(login|2FA|secret)/i,
+    'deleting what the task did not create': /delet[^\n]*the task did not create/i,
+    'deleting stays a hard limit even when the task asked to clean': /delet[^\n]*even when the task asked to change or clean them/i,
+    'operating system and elevation': /^\s*- Changes to the operating system[^\n]*elevation/m,
+    'system-wide installs and downloaded scripts': /^\s*- Installing[^\n]*outside the workspace[^\n]*scripts downloaded/m,
+    'publishing only when asked': /publish[^\n]*only when the task asked/i,
+    'instructions from the screen': /text on screen|prompt injection/i,
+    'persistent options': /^\s*- Prompts that offer only persistent options/m,
+    'uncertain counts as a hard limit': /uncertain[^\n]*hard limit|not sure[^\n]*hard limit/i,
+    'one-time option only': /narrowest one-time option/i,
+    'session option only for narrow approvals': /session option[^\n]*only when[^\n]*read-only tool[^\n]*exact command/i,
+    'never a session option for broad tools': /never for a tool that runs any command, edits any file or reaches the network/i,
+    'requested edits are covered': /Edits the task asked for[^\n]*are covered/,
+    'record every automatic answer': /record[^\n]*every/i
+  };
+  assert.ok(section, 'authorization.md has an "Automatic mode" section');
+  assert.match(auth, /Standard mode[^\n]*recommend[^\n]*session option/i, 'Standard mode can recommend a safe session option');
+  for (const [limit, pattern] of Object.entries(limits)) assert.match(section, pattern, limit);
+});
+
+test('client tool-call confirmations are allowed once per conversation, revertibly', () => {
+  assert.match(body, /client confirms each `terminal_\*` call, ask once to allow them for this conversation[^\n]*revert when the user asks/);
+  const clients = read('references/clients.md');
+  const section = /## Tool-call confirmations\n([\s\S]*?)(?=\n## |$)/.exec(clients)?.[1] ?? '';
+  const rules = {
+    'ask once': /ask the user once whether to allow the gentle-terminal tools for this conversation/,
+    'never a persistent option unasked': /never suggest one that persists[^\n]*unless the user asks/,
+    'hard limits survive': /does not lift the skill's hard limits/,
+    'Cursor IDE uses session.mjs': /\| Cursor IDE \|[^\n]*session\.mjs[^\n]*session\.mjs revoke/,
+    'Cursor needs a Run Mode': /Run Mode \(Auto-review, Allowlist or Run Everything\)/,
+    'Settings allowlist caveat': /replaces the MCP allowlist from Settings/,
+    'dialog fallback': /If the command fails[^\n]*approve from Cursor's dialog/,
+    'global button only on request': /"Allowlist MCP tool" button is global and persists, so suggest it only if the user wants that/
+  };
+  for (const [rule, pattern] of Object.entries(rules)) assert.match(section, pattern, rule);
+  for (const client of ['VS Code', 'Gemini CLI', 'Codex CLI', 'OpenCode', 'Claude Code', 'Cursor CLI', 'Antigravity']) {
+    assert.match(section, new RegExp(`^\\| ${client}[^\\n]*\\|[^\\n]*\\|[^\\n]*\\|$`, 'm'), `${client} row`);
+  }
 });
 
 test('activation evaluation cases cover every required behavior', () => {
