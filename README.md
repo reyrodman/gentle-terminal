@@ -53,7 +53,7 @@ Most agent shell tools run one command and hand back its output. That breaks the
 - 📌 **Pinned and verifiable.** Runtime locked to `terminal-use@0.2.1` with SHA-512 integrity, installed with `--ignore-scripts`; a test fails if the pin drifts.
 - 🧳 **Portable launcher.** One `node launch.mjs` entry point that works from any cwd and from paths with spaces, forwarding stdio, arguments and exit codes in the same process.
 - 🔌 **One command for every client.** `node install.mjs` registers or updates gentle-terminal in each installed client: Cursor, VS Code, Codex, Claude Code, Claude Desktop, OpenCode, Antigravity, Gemini CLI and Windsurf. Ready-to-copy configs are included for manual setup.
-- ✅ **Tested on Linux, macOS and Windows, x64 and ARM64.** 53 `node:test` tests, including E2E supervision against a simulated agent and the installer against a temporary home folder, plus a deterministic MCP smoke test in CI; no model or network calls.
+- ✅ **Tested on Linux, macOS and Windows, x64 and ARM64.** 54 `node:test` tests, including E2E supervision against a simulated agent and the installer against a temporary home folder, plus a deterministic MCP smoke test in CI; no model or network calls.
 - 🪶 **No hidden global changes.** No global install, no PATH or profile edits. Client configs and skill links change only when you run the installer, with a backup of every file it edits.
 
 ## Quick start

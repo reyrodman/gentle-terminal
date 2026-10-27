@@ -88,10 +88,10 @@ function revoke({ dir, file, stateFile }) {
   }
   const state = JSON.parse(readFileSync(stateFile, 'utf8'));
   if (existsSync(file)) {
-    if (sha(readFileSync(file, 'utf8')) === state.written) {
-      if (state.createdFile) unlinkSync(file);
-      else copyFileSync(state.backup, file);
-    } else {
+    const unchanged = sha(readFileSync(file, 'utf8')) === state.written;
+    if (unchanged && state.createdFile) unlinkSync(file);
+    else if (unchanged && state.backup && existsSync(state.backup)) copyFileSync(state.backup, file);
+    else {
       const { data } = readPermissions(file);
       const list = (data.mcpAllowlist ?? []).filter(value => !isEntry(value));
       if (state.createdKey && list.length === 0) delete data.mcpAllowlist;

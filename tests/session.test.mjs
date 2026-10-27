@@ -61,6 +61,18 @@ test('revoke removes only its own entry when the file changed meanwhile', t => {
   assert.deepEqual(JSON.parse(readFileSync(s.file, 'utf8')), { mcpAllowlist: ['linear:*'] });
 });
 
+test('revoke still removes its entry when the backup was deleted', t => {
+  const s = sandbox(t);
+  mkdirSync(join(s.ws, '.cursor'));
+  writeFileSync(s.file, '{"x":1}');
+  assert.equal(s.run('allow').status, 0);
+  rmSync(`${s.file}.bak-gentle-terminal-session`);
+  const revoke = s.run('revoke');
+  assert.equal(revoke.status, 0, revoke.stderr);
+  assert.deepEqual(JSON.parse(readFileSync(s.file, 'utf8')), { x: 1 });
+  assert.deepEqual(readdirSync(join(s.ws, '.cursor')), ['permissions.json']);
+});
+
 test('allow is idempotent and an entry the user already has is never revoked', t => {
   const s = sandbox(t);
   assert.equal(s.run('allow').status, 0);
