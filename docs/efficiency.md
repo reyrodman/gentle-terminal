@@ -1,6 +1,6 @@
 # Adaptive efficiency: evidence and remaining work
 
-**Proposed 1.4.0, unreleased; local measurements and integrated checks passed. Real-client/model and cross-platform proof remains outstanding.** This compatible work reduces instruction bytes and improves measurement and receipt safety, not the upstream engine. It does not establish 20% total-token savings or p95 noninferiority. Safety and verified completion take precedence over shorter output.
+**Version 1.4.0; local measurements and integrated checks passed. Real-client/model and cross-platform proof remains outstanding.** This compatible work reduces instruction bytes and improves measurement and receipt safety, not the upstream engine. It does not establish 20% total-token savings or p95 noninferiority. Safety and verified completion take precedence over shorter output.
 
 ## A. Architecture and default contract
 
@@ -113,7 +113,7 @@ None of these model/native scenarios was run by this documentation task or estab
 
 ## G. Updating without silently changing consent
 
-This is a proposal for **SemVer 1.4.0**, not a release; package version remains 1.3.0. When a reviewed version is available, close clients, inspect local changes and back up configs. Review `node install.mjs --dry-run` before approving installation. `npm run update` fast-forwards only the current checkout's branch and refuses dirty/diverged checkouts; use the intended reviewed branch rather than assuming it changes branches for you.
+These changes are **SemVer 1.4.0**: compatible additions and fixes, with the default 13-tool contract and pinned engine unchanged. To update, close clients, inspect local changes and back up configs. Review `node install.mjs --dry-run` before approving installation. `npm run update` fast-forwards only the current checkout's branch and refuses dirty/diverged checkouts; use the intended reviewed branch rather than assuming it changes branches for you.
 
 The installer preserves other server/settings entries, repoints existing gentle-terminal entries with their names/extra arguments, backs up changes and leaves unsupported formats for manual review. Reinstall the pinned runtime per OS/architecture; never copy node_modules. Reload clients and verify MCP status plus a bounded probe. Do not reset user consent or run `session.mjs allow` as an update step. Existing allowances remain until explicit `revoke`; inspect `status` for each approved workspace and use Run once when no persistent consent exists. Keep recovery files private and uncommitted. See [update instructions](../README.md#updating) and [client limits](../references/clients.md#tool-call-confirmations).
 
@@ -121,4 +121,4 @@ The installer preserves other server/settings entries, repoints existing gentle-
 
 **Local checks passed:** 74/74 tests, smoke, verify, package/export/privacy/link checks, and exact tool-array comparison. **Outstanding proof:** real-model/client evaluation, native non-Windows runs and ordinary file-symlink probes blocked by EPERM. No total-token or p95 target is declared met. The upstream `MaxListenersExceededWarning` occurred in both completed benchmark reports; it remains visible on stderr and was not suppressed or fixed. Both benchmark servers exited 0 with zero non-JSON stdout lines. The default 13-tool contract is exactly equal.
 
-Demonstrated scope is smaller skill bytes and bounded deterministic safety/measurement work. Actual billed-token reduction, reasoning cost, long/ambiguous/TUI savings, real-client effectiveness, native macOS/Linux behavior and cross-account Windows pipe safety remain unproven. Recommendation: retain the unchanged runtime and default dimensions; review the local commits and run explicitly approved real-client evaluations before a release, any default-sizing change or an adapter. No push, publication, global update or installed-client configuration change was performed.
+Demonstrated scope is smaller skill bytes and bounded deterministic safety/measurement work. Actual billed-token reduction, reasoning cost, long/ambiguous/TUI savings, real-client effectiveness, native macOS/Linux behavior and cross-account Windows pipe safety remain unproven. 1.4.0 ships with these limits stated. Recommendation: retain the unchanged runtime and default dimensions, and run explicitly approved real-client evaluations before any default-sizing change, an adapter or a claim of token savings. The optimization work changed no installed-client configuration.

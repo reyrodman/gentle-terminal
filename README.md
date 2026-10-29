@@ -286,7 +286,7 @@ No test makes model or network calls, and scratch state lives in the OS temp dir
 
 ### Efficiency results: measured scope and limits
 
-The proposed **1.4.0 is unreleased**. Skill activation is **7,679 → 6,486 bytes (-15.5%)**, not a measured reduction in billed tokens. The default 13-tool contract and `terminal-use@0.2.1` remain unchanged. The 15-run candidate benchmark completed with **45/45 fresh-marker verifications**; final integrated tests passed **74/74**, with smoke and verify exit 0. No 20% total-token or p95 noninferiority claim is made.
+These results ship in **1.4.0**. Skill activation is **7,679 → 6,486 bytes (-15.5%)**, not a measured reduction in billed tokens. The default 13-tool contract and `terminal-use@0.2.1` remain unchanged. The 15-run candidate benchmark completed with **45/45 fresh-marker verifications**; final integrated tests passed **74/74**, with smoke and verify exit 0. No 20% total-token or p95 noninferiority claim is made.
 
 The measured 1.3.0 baseline (Windows x64, Node 24.16.0, stdio harness, 15 runs) recorded tools/list at **24,828 bytes**, optimized task p50/p95 at **313.4/338.0 ms**, and **54/54 tests** with smoke/bench/verify exit 0. The four-to-one-call strategy already existed before this feature. The 12-row experiment reduced response traffic **44.2%**, but sampled p95 increased **16.6%** (390.8 → 455.5 ms) against the same-run 40-row strategy, so smaller dimensions are **not promoted to a default**. Real-client/model evaluations have not run.
 
@@ -296,7 +296,7 @@ See the [architecture, audit, comparison, security and evaluation report](docs/e
 
 ```bash
 npm pack --dry-run --json --ignore-scripts   # inspect the exact allowlisted file list
-npm pack --ignore-scripts                    # creates gentle-terminal-1.3.0.tgz
+npm pack --ignore-scripts                    # creates gentle-terminal-1.4.0.tgz
 ```
 
 The package is `private`, so it can be packed but not published to npm by accident. The `files` allowlist excludes installed modules, caches and scratch data, and the export test scans every packed file for home-directory paths.

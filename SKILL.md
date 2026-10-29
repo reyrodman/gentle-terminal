@@ -4,7 +4,7 @@ description: "Trigger: interactive terminal, persistent shell, REPL, TUI, watche
 license: MIT
 metadata:
   author: "reyrodman and gentle-terminal contributors"
-  version: "1.3.0"
+  version: "1.4.0"
   homepage: "https://github.com/reyrodman/gentle-terminal"
 ---
 
