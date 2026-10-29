@@ -3,7 +3,7 @@
 // No model calls, no network; scratch state lives in the OS temp directory.
 import test, { before, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, mkdirSync, rmSync } from 'node:fs';
+import { existsSync, readFileSync, mkdtempSync, mkdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -93,6 +93,34 @@ test('agent input box: a typed trailing newline is pasted, a separate Enter subm
   await call('terminal_type', { sessionId, text: '/quit' });
   await call('terminal_press', { sessionId, key: 'Enter' });
   assert.match(await call('terminal_wait', { sessionId, timeoutMs: 5000 }), /exit code 0/);
+  await destroy(sessionId);
+});
+
+test('simulated input-mode: unsafe markers are not submitted; verified literal entry preserves exact content once', async () => {
+  const { sessionId, cwd } = await open('input-mode', 'literal-input');
+  const content = '  Keep ! / @ # exactly: hello@example.org /docs #42!  ';
+  const receipt = join(cwd, 'literal-input.json');
+  const ready = await call('terminal_wait', { sessionId, pattern: '^FakeInputMode', timeoutMs: 10000 });
+  assert.match(ready, /simulated/);
+  const unsafe = await call('terminal_type', { sessionId, text: content });
+  assert.match(unsafe, /MODE: UNSAFE shell\/command\/mention/);
+  assert.equal(existsSync(receipt), false, 'no execution or receipt before a safe submit');
+  const unchanged = await call('terminal_read', { sessionId });
+  assert.match(unchanged, /MODE: UNSAFE/);
+  assert.doesNotMatch(unchanged, /received task/);
+  assert.equal(existsSync(receipt), false, 'unchanged screen is not completion');
+  // This key is a purpose-built fixture capability, NOT a real-client shortcut.
+  const literal = await call('terminal_press', { sessionId, key: 'Ctrl+L' });
+  assert.match(literal, /MODE: VERIFIED LITERAL \(fixture-only Ctrl\+L\)/);
+  assert.equal(existsSync(receipt), false, 'switching modes is not submission');
+  assert.match(literal, new RegExp(content.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  const submitted = await call('terminal_press', { sessionId, key: 'Enter' });
+  assert.match(submitted, /received task #1 \(literal\)/);
+  assert.doesNotMatch(submitted, /received task #2|UNSAFE EXECUTION/);
+  assert.deepEqual(JSON.parse(readFileSync(receipt, 'utf8')), { content, executions: 1 });
+  await call('terminal_press', { sessionId, key: 'Ctrl+D' });
+  assert.match(await call('terminal_wait', { sessionId, timeoutMs: 5000 }), /exit code 0/);
+  assert.deepEqual(JSON.parse(readFileSync(receipt, 'utf8')), { content, executions: 1 });
   await destroy(sessionId);
 });
 
