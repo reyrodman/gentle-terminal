@@ -1,0 +1,185 @@
+{
+  "baseRevision": "8e2cecf8710b1e1197049def90895e1db1b1b173",
+  "candidateSourceRevision": "e909aa1",
+  "platform": "win32/x64",
+  "node": "v24.16.0",
+  "runs": 15,
+  "client": "gentle-terminal-tests/1 (stdio)",
+  "runtime": "terminal-use@0.2.1",
+  "scope": "Same host and sanitized environment. Sequential runs, not a randomized cross-revision trial. Candidate harness adds one shell and changes order/markers/clearing; no causal latency claim.",
+  "baseline": {
+    "skillActivationBytes": 7679,
+    "discoveryBytes": 349,
+    "toolsListBytes": 24828,
+    "coldStartMs": {
+      "n": 10,
+      "p50": 392.7,
+      "p95": 404.2,
+      "p99": 404.2
+    },
+    "task": {
+      "legacy": {
+        "callsAvg": 4,
+        "bytesAvg": 3803.7,
+        "latency": {
+          "n": 15,
+          "p50": 536.2,
+          "p95": 712.8,
+          "p99": 712.8
+        }
+      },
+      "optimized": {
+        "callsAvg": 1,
+        "bytesAvg": 1120.9,
+        "latency": {
+          "n": 15,
+          "p50": 313.4,
+          "p95": 338,
+          "p99": 338
+        }
+      }
+    },
+    "idleRSSMB": 107.2,
+    "idleCPUmsPer5s": 0,
+    "loadedRSSMB": 375.8,
+    "shells": 6
+  },
+  "candidate": {
+    "skillActivationBytes": 6486,
+    "discoveryBytes": 221,
+    "toolsListBytes": 24828,
+    "coldStartMs": {
+      "n": 10,
+      "p50": 436.8,
+      "p95": 493.3,
+      "p99": 493.3
+    },
+    "task": {
+      "legacy": {
+        "callsAvg": 4,
+        "outputWireBytesAvg": 3879.6,
+        "inputWireBytesAvg": 685.6,
+        "estimatedOutputTextTokensAvg": 839.7,
+        "latency": {
+          "n": 15,
+          "p50": 534.6,
+          "p95": 689.1,
+          "p99": 689.1
+        },
+        "attempts": 15,
+        "completed": 15,
+        "errors": 0,
+        "retries": 0,
+        "duplicateSubmissions": 0,
+        "completionEvidence": "Fresh exact output marker with expected job exit 3 (intentional nonzero)"
+      },
+      "optimized": {
+        "callsAvg": 1,
+        "outputWireBytesAvg": 1099,
+        "inputWireBytesAvg": 286.7,
+        "estimatedOutputTextTokensAvg": 239.3,
+        "latency": {
+          "n": 15,
+          "p50": 326,
+          "p95": 390.8,
+          "p99": 390.8
+        },
+        "attempts": 15,
+        "completed": 15,
+        "errors": 0,
+        "retries": 0,
+        "duplicateSubmissions": 0,
+        "completionEvidence": "Fresh exact output marker with expected job exit 3 (intentional nonzero)"
+      },
+      "adaptive": {
+        "callsAvg": 1,
+        "outputWireBytesAvg": 612.7,
+        "inputWireBytesAvg": 285.7,
+        "estimatedOutputTextTokensAvg": 127,
+        "latency": {
+          "n": 15,
+          "p50": 328.5,
+          "p95": 455.5,
+          "p99": 455.5
+        },
+        "attempts": 15,
+        "completed": 15,
+        "errors": 0,
+        "retries": 0,
+        "duplicateSubmissions": 0,
+        "completionEvidence": "Fresh exact output marker with expected job exit 3 (intentional nonzero)"
+      }
+    },
+    "idleRSSMB": 108,
+    "idleCPUmsPer5s": 0,
+    "loadedRSSMB": 387.8,
+    "shells": 7
+  },
+  "contract": {
+    "base": "8e2cecf8710b1e1197049def90895e1db1b1b173",
+    "equal": true,
+    "contract": {
+      "count": 13,
+      "names": [
+        "terminal_batch",
+        "terminal_click",
+        "terminal_create",
+        "terminal_destroy",
+        "terminal_list",
+        "terminal_press",
+        "terminal_read",
+        "terminal_reset",
+        "terminal_resize",
+        "terminal_screenshot",
+        "terminal_scroll",
+        "terminal_type",
+        "terminal_wait"
+      ],
+      "sha256": "a1b9370f5cf12116e5b0654caca6ec6803f4bbd8e003b18f3aa1550908bf091a",
+      "serialization": "JSON with recursively sorted object keys; array order preserved"
+    },
+    "scope": "Exact tools/list tool array, all schemas/descriptions/annotations/order; same unchanged installed runtime"
+  },
+  "measurementLimits": {
+    "billedInputTokens": null,
+    "billedOutputTokens": null,
+    "reasoningTokens": null,
+    "perTaskCPU": null,
+    "perTaskMemory": null,
+    "independentFalsePositiveRate": null,
+    "reason": "No model/client evaluation or independent ground-truth measurement; byte/4 is only a text heuristic. Historical baseline tokensAvg incorrectly included JSON envelopes, and PNG byte-to-token estimates are invalid.",
+    "latency": "15 repetitions: p95 and p99 are sample maxima, not reliable population tails.",
+    "scenarios": "Fixed 30-line native job with intentional exit3. Long/silent/TUI covered by deterministic regression tests, not comparative benchmark savings."
+  },
+  "transport": {
+    "baselineNonJSON": 0,
+    "candidateNonJSON": 0,
+    "baselineShutdown": 0,
+    "candidateShutdown": 0,
+    "warning": "Upstream MaxListenersExceededWarning on stderr in both benchmark runs; not suppressed or fixed."
+  },
+  "localVerification": {
+    "baseline": {
+      "tests": 54,
+      "passed": 54,
+      "skipped": 0,
+      "smokeExit": 0,
+      "verifyExit": 0
+    },
+    "candidate": {
+      "tests": 74,
+      "passed": 74,
+      "skipped": 0,
+      "smokeExit": 0,
+      "verifyExit": 0
+    },
+    "independentSecurity": "Legacy-alias blocker reproduced, corrected and independently rechecked; actual baseline receipt compatibility and rejected-input preservation passed.",
+    "unexecuted": [
+      "23 original plus 2 new model-dependent evaluations",
+      "Installed OpenCode/Codex/Cursor integration",
+      "Native macOS/Linux and additional shell matrix",
+      "Ordinary file symlink probes: EPERM; junctions tested"
+    ],
+    "nativeReview": "No native approval claimed; documentation assessment unavailable because untracked scope required declaration."
+  }
+}

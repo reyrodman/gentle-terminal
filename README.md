@@ -46,14 +46,14 @@ Most agent shell tools run one command and hand back its output. That breaks the
 <img src="docs/assets/capabilities.svg" alt="Six capabilities: real terminals and TUIs, supervising coding agents by state, approval-first prompts, verified completion, a one-command installer for nine clients, and a pinned, tested runtime" width="100%">
 
 - 🖥️ **Real terminals, not command runners.** Full PTY with colors, cursor movement and alternate screen, readable as text or PNG screenshots (powered by terminal-use).
-- 🛡️ **Approval-first Agent Skill.** A compact [`SKILL.md`](SKILL.md) (about 7 KB) with hard rules, an eleven-state decision table and an efficient call loop. Specialized guidance (authorization, recovery, Windows, engine limits, agent supervision) is loaded only when needed.
+- 🛡️ **Approval-first Agent Skill.** A compact [`SKILL.md`](SKILL.md) (6,486 bytes) with hard rules, an eleven-state decision table and an efficient call loop. Specialized guidance (authorization, recovery, Windows, engine limits, agent supervision) is loaded only when needed.
 - 🚦 **Standard or Automatic, your call per task.** The agent asks once, in your language. **Standard** shows you every trust and approval prompt. **Automatic** answers the prompts the task needs, never persistently, and keeps going until the goal is verified; credentials, deletions, system changes and installs, publishing and anything uncertain still stop for you.
 - 🤖 **Supervise other coding agents.** A [state-based workflow](references/workflow.md) with versioned, observed signals for Codex CLI, OpenCode, Antigravity CLI and Claude Code startup.
 - 🧪 **Behavior pinned by tests.** A deterministic simulated agent exercises delayed trust overlays, approval menus, silent hangs, crashes, false completion claims, prompt injection and respawns through the real MCP server, without any model calls.
 - 📌 **Pinned and verifiable.** Runtime locked to `terminal-use@0.2.1` with SHA-512 integrity, installed with `--ignore-scripts`; a test fails if the pin drifts.
 - 🧳 **Portable launcher.** One `node launch.mjs` entry point that works from any cwd and from paths with spaces, forwarding stdio, arguments and exit codes in the same process.
 - 🔌 **One command for every client.** `node install.mjs` registers or updates gentle-terminal in each installed client: Cursor, VS Code, Codex, Claude Code, Claude Desktop, OpenCode, Antigravity, Gemini CLI and Windsurf. Ready-to-copy configs are included for manual setup.
-- ✅ **Tested on Linux, macOS and Windows, x64 and ARM64.** 54 `node:test` tests, including E2E supervision against a simulated agent and the installer against a temporary home folder, plus a deterministic MCP smoke test in CI; no model or network calls.
+- ✅ **Cross-platform CI and deterministic checks.** `node:test` includes simulated-agent supervision and installer checks against a temporary home, plus MCP smoke checks. The CI matrix covers Linux, macOS and Windows; current adaptive-feature results and untested native-client scenarios are separated in the [efficiency report](docs/efficiency.md). No model or network calls in fixtures.
 - 🪶 **No hidden global changes.** No global install, no PATH or profile edits. Client configs and skill links change only when you run the installer, with a backup of every file it edits.
 
 ## Quick start
@@ -284,21 +284,13 @@ npm run bench     # cost benchmark: startup, payload sizes, per-tool latency, me
 
 No test makes model or network calls, and scratch state lives in the OS temp directory. The smoke test starts the server, drives a shell, checks `exit 7` propagation, then disconnects and confirms its own shell is gone. [`evals/activation.json`](evals/activation.json) lists behavior cases (activation, authorization, silence, verification) for manual runs with real agents; they need a model, so they are not part of CI.
 
-### Measured cost
+### Efficiency results: measured scope and limits
 
-Windows 11 x64, Node 24.16, terminal-use 0.2.1, 15 runs (`npm run bench`); sizes are bytes on the wire, tokens are a 4-bytes-per-token estimate.
+The proposed **1.4.0 is unreleased**. Skill activation is **7,679 → 6,486 bytes (-15.5%)**, not a measured reduction in billed tokens. The default 13-tool contract and `terminal-use@0.2.1` remain unchanged. The 15-run candidate benchmark completed with **45/45 fresh-marker verifications**; final integrated tests passed **74/74**, with smoke and verify exit 0. No 20% total-token or p95 noninferiority claim is made.
 
-| Metric | v1.0.0 | v1.1.0 | Note |
-|---|---|---|---|
-| Skill description (discovery, always in context) | 252 B | 349 B | +97 B: now also says when not to activate |
-| Skill text required before the first action | 34,301 B (~8.6k tokens) | 6,272 B (~1.6k tokens) | v1.0.0 required README, workflow and upstream skill up front. Current `SKILL.md` (with the Windows wait rule and the Standard/Automatic modes): 7,679 B (~1.9k tokens) |
-| Run a command and read its exit status | 4 calls, 3,324 B, p50 534 ms | 1 call, 1,002 B, p50 314 ms | type + press + wait + read vs. one type with `\n` and a nonce marker |
-| `tools/list` | 24,828 B | 24,828 B | Upstream schema, unchanged |
-| Cold start to `initialize` result | p50 398 ms | p50 398 ms | Same launcher and runtime |
-| Server memory idle / with 6 shells | 109 MB / 378 MB | 109 MB / 378 MB | Working set of the server process |
-| Server CPU while idle | 0 ms per 5 s | 0 ms per 5 s | |
+The measured 1.3.0 baseline (Windows x64, Node 24.16.0, stdio harness, 15 runs) recorded tools/list at **24,828 bytes**, optimized task p50/p95 at **313.4/338.0 ms**, and **54/54 tests** with smoke/bench/verify exit 0. The four-to-one-call strategy already existed before this feature. The 12-row experiment reduced response traffic **44.2%**, but sampled p95 increased **16.6%** (390.8 → 455.5 ms) against the same-run 40-row strategy, so smaller dimensions are **not promoted to a default**. Real-client/model evaluations have not run.
 
-The call-economy row measures the guidance, not a server change: the after-column is what an agent following `SKILL.md` sends. Under the full benchmark load, the upstream MCP SDK prints a `MaxListenersExceededWarning` on stderr (stdout stays valid JSON-RPC); it did not reproduce with 60 screenshots or 60 reads alone.
+See the [architecture, audit, comparison, security and evaluation report](docs/efficiency.md) and [benchmark methodology](bench/README.md) for scope, measured values, remaining proof and reproduction instructions. The upstream `MaxListenersExceededWarning` appeared on stderr in both benchmark reports; it is not hidden or fixed here.
 
 ### Build a distributable archive
 

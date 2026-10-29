@@ -5,8 +5,9 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 const root = new URL('../', import.meta.url);
 const expected = [
-  'CHANGELOG.md', 'LICENSE', 'README.md', 'SKILL.md', 'THIRD_PARTY_NOTICES.md',
-  'bench/bench.mjs', 'bench/metrics.mjs', 'bench/README.md', 'tests/bench.test.mjs',
+  'CHANGELOG.md', 'LICENSE', 'README.md', 'SKILL.md', 'SECURITY.md', 'THIRD_PARTY_NOTICES.md',
+  'bench/bench.mjs', 'bench/metrics.mjs', 'bench/README.md', 'bench/results/efficiency.json',
+  'docs/efficiency.md', 'tests/bench.test.mjs',
   'docs/assets/architecture.svg', 'docs/assets/banner.svg',
   'docs/assets/capabilities.svg', 'docs/assets/states.svg',
   'examples/README.md', 'examples/claude-desktop/claude_desktop_config.json',
