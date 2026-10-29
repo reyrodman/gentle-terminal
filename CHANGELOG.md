@@ -6,6 +6,10 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixed
+
+- Cursor allowance receipts are validated before use; status checks the actual workspace entry and stale state cannot silently re-grant permission. Recovery is recorded before installing an allowance, backups use internally derived paths, legitimate legacy workspace aliases remain revocable, and detected links in managed permission surfaces fail closed. Permissions still persist until explicit revocation; concurrent edits and hostile-workspace races are not supported. Installer tests no longer inherit a real `CODEX_HOME`.
+
 ### Changed
 
 - Adaptive skill guidance reduces activation from 7,679 to 6,486 bytes while retaining both consent modes, all eleven states and explicit hard limits. Direct file reads and ordinary one-shot commands avoid unnecessary terminal activation. Supervision preserves exact special-character input rather than stripping it; a clearly simulated fixture tests one literal submission. Paste fallback, persistent Cursor consent and on-demand upstream-skill guidance are clarified. Model-driven evaluations remain unexecuted, not implied by fixture passes.
