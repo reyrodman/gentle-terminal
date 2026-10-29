@@ -1,7 +1,7 @@
 import test from 'node:test';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -10,7 +10,8 @@ import { fileURLToPath } from 'node:url';
 const script = fileURLToPath(new URL('../session.mjs', import.meta.url));
 
 function sandbox(t) {
-  const base = mkdtempSync(join(tmpdir(), 'gt-session-'));
+  // session.mjs reports canonical paths; the temp dir can be a link (macOS /var) or an 8.3 name (RUNNER~1).
+  const base = realpathSync.native(mkdtempSync(join(tmpdir(), 'gt-session-')));
   t.after(() => rmSync(base, { recursive: true, force: true }));
   const home = join(base, 'home'), ws = join(base, 'ws');
   mkdirSync(home); mkdirSync(ws);
