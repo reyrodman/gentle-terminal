@@ -34,7 +34,7 @@ Vulnerabilities in [terminal-use](https://github.com/computer-agent-labs/termina
 
 gentle-terminal gives an AI agent the same terminal access as the user who starts the MCP server. Its controls fall into two groups:
 
-- **Enforced in code**: Node and platform guards, clean stdout, the pinned runtime with SHA-512 lockfile integrity and no install scripts, upstream session disposal on disconnect and signals, and command sessions that never rerun on their own.
+- **Enforced in code**: Node and platform guards, clean stdout, the pinned runtime with SHA-512 lockfile integrity and no install scripts, upstream session disposal on disconnect and signals, command sessions that never rerun on their own, and the localized receipt/path checks in `session.mjs` described below.
 - **Guidance only (Agent Skill)**: approval handling, treating terminal output as untrusted, staying in the authorized workspace, not leaking secrets, not duplicating submissions, cleanup. A model or client can ignore these rules; keep the client's own approval gates and sandbox features enabled.
 
 | Threat | Mitigation | Residual risk |
@@ -49,6 +49,18 @@ gentle-terminal gives an AI agent the same terminal access as the user who start
 | Tampered or substituted dependencies | Exact pin, SHA-512 integrity for all 25 locked packages, `--ignore-scripts`, Dependabot | The native `@lydell/node-pty` dependency is a prerelease (`1.2.0-beta.15`) chosen upstream |
 | Installer damaging client configs (`install.mjs`) | Runs only when the user starts it; touches only installed clients and only gentle-terminal entries; files with comments or unknown layouts are left untouched; timestamped backup, atomic write and read-back per file; skill links are never removed recursively; `--update` only fast-forwards its own checkout; `--dry-run`; `tests/install.test.mjs` against a temporary home | JSON files it rewrites are re-serialized (indentation, BOM and line endings kept; duplicate keys collapse). A client writing the same file at the same moment can overwrite the change: close clients first or rerun |
 | Secrets or private paths in the repository or archive | `files` allowlist and home-path scan in `tests/export.test.mjs` | Scan targets home-directory paths only |
+
+## Cursor workspace allowance receipts
+
+`session.mjs allow` requires explicit consent for a **persistent** allowance until revoked, including across client restarts; conversation-only consent is insufficient. Without that consent, use Cursor's Run once dialog. No expiry, automatic renewal or task-end revocation is implemented.
+
+- `status` checks the workspace entry, **not Cursor's effective runtime settings**. It distinguishes recorded presence, user-managed entries, absence and drift. With a stale receipt, `allow` fails rather than silently granting permission again; `revoke` clears stale recovery state without renewing it.
+- Recovery is recorded before permission installation. Receipts are validated, backup operations use an internally derived path, and legitimate legacy workspace aliases remain revocable. Unchanged files can be restored byte for byte from the backup; otherwise revocation removes only the script's entry and preserves unrelated settings. User-managed entries without a receipt are not revoked.
+- Detected symlinks/junctions, dangling links and unexpected types in managed permission/receipt/backup surfaces are refused before use. Workspace aliases themselves are supported. Invalid receipts fail without changes; inspect retained recovery artifacts after errors rather than deleting or substituting paths blindly.
+
+These checks require a **single writer**, no concurrent settings edits and a trusted workspace. They are not race-proof, do not catch every reparse-point type, and are not a sandbox or proof of installed-Cursor behavior. Windows junction recovery was verified; ordinary file-symlink creation returned EPERM, leaving that probe untested. Focused receipt tests and independent security checks do not establish native macOS/Linux or effective Cursor integration coverage. See the [efficiency evidence and remaining checks](docs/efficiency.md).
+
+The Windows named-pipe limitation above remains unresolved upstream: receipt protections and skill guidance do not restrict pipe ACLs or prevent other local accounts from reading output. Keep client approval gates enabled and avoid shared Windows hosts or secrets on screen.
 
 ## Safe testing
 

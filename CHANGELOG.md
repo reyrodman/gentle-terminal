@@ -6,6 +6,18 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-10-29
+
+### Fixed
+
+- Cursor allowance receipts are validated before use; status checks the actual workspace entry and stale state cannot silently re-grant permission. Recovery is recorded before installing an allowance, backups use internally derived paths, legitimate legacy workspace aliases remain revocable, and detected links in managed permission surfaces fail closed. Permissions still persist until explicit revocation; concurrent edits and hostile-workspace races are not supported. Installer tests no longer inherit a real `CODEX_HOME`.
+
+### Changed
+
+- Added the architecture/audit/update/evaluation report in `docs/efficiency.md` and sanitized measurements in `bench/results/efficiency.json`. Local checks passed 74/74 tests plus smoke/verify; the 12-row experiment saved response bytes but worsened sampled p95 and is not a new default. Real-model usage, total-token savings and native-client/cross-platform proof remain explicitly unmeasured. The pinned engine and the default 13-tool contract are unchanged. Security and measurement documentation are included in the portable export.
+- Adaptive skill guidance reduces activation from 7,679 to 6,486 bytes while retaining both consent modes, all eleven states and explicit hard limits. Direct file reads and ordinary one-shot commands avoid unnecessary terminal activation. Supervision preserves exact special-character input rather than stripping it; a clearly simulated fixture tests one literal submission. Paste fallback, persistent Cursor consent and on-demand upstream-skill guidance are clarified. Model-driven evaluations remain unexecuted, not implied by fixture passes.
+- Deterministic benchmark: bidirectional wire bytes, explicitly labelled text-only token estimates (never image bytes), null real-model usage, stable tool-contract digest, symmetric fresh-marker verification and alternating strategy order. Added an experimental 12-row shell comparison, argument validation, failure-safe cleanup and regression tests. The existing legacy-to-response-reuse improvement predates this work; no billed-token gain is claimed.
+
 ## [1.3.0] - 2026-10-26
 
 ### Added
@@ -83,7 +95,8 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 - Deterministic MCP stdio smoke test and `node:test` suite covering launcher forwarding, relocation, dependency pinning and export allowlist privacy checks.
 - Cross-platform CI on Linux, macOS and Windows.
 
-[Unreleased]: https://github.com/reyrodman/gentle-terminal/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/reyrodman/gentle-terminal/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/reyrodman/gentle-terminal/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/reyrodman/gentle-terminal/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/reyrodman/gentle-terminal/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/reyrodman/gentle-terminal/compare/v1.1.0...v1.2.0

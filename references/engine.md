@@ -16,7 +16,7 @@ Upstream detail worth loading on demand only:
 - `terminal_type`, `terminal_press`, `terminal_click`, `terminal_scroll` return after output has been quiet for `idleMs` (default 200 ms), or after `maxWaitMs` (default 5 s, capped at 10 s) with a "still active" note; they then return the whole screen.
 - `\n` inside `terminal_type` is Enter. Without it, text is only written into the input line. Agent input boxes (Codex CLI and similar) can treat an Enter that arrives in the same burst as typed text as a pasted newline; send it with a separate `terminal_press`.
 - `terminal_press` takes `count` (for example `ArrowDown` ×2): one call and one screen instead of one per key.
-- `paste: true` sends multi-line text as one bracketed paste so editors do not auto-indent and shells do not run it line by line. Nothing is submitted until you press Enter.
+- `paste: true` requests bracketed paste, but bracketed paste may fall back to ordinary input when unsupported. Embedded newlines can submit commands; this flag does not guarantee literal composer mode or defer submission until Enter. Verify the actual client's capabilities and safe input mode first; preserve exact content or stop and ask. In a verified agent composer, use one separate Enter for submission; do not add an extra Enter after evidence it was sent.
 - `terminal_batch` runs up to its action limit in order, stops at the first failing step, and returns one screen at the end. It can include `wait` steps with a pattern. Do not batch across a point where a prompt or decision may appear.
 
 ## terminal_wait
@@ -44,6 +44,8 @@ Upstream detail worth loading on demand only:
 | `terminal_read { rows: 8 }` | 0.3 KB |
 | `type` / `press` / `wait` response | 0.9 KB |
 | `terminal_screenshot` | 71 KB (image) |
+
+Small-shell 12-row sessions are experimental, not a default: a two-run comparison found worse p95. Do not shrink TUIs; use sufficient tail reads only when evidence remains complete, expand ambiguous screens, and keep full history available. Smaller payloads are not billed-token measurements or proof of lower latency.
 
 Run a command and get its exit status: `type` + `press Enter` + `wait` + `read` cost 4 calls and about 3.3 KB; one `type` with `\n` and a fresh marker cost 1 call and about 1.0 KB, because the response already contained the marker. Reproduce with `npm run bench`.
 

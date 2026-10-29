@@ -17,7 +17,7 @@ function machine() {
   const appData = windows ? join(home, 'AppData', 'Roaming')
     : process.platform === 'darwin' ? join(home, 'Library', 'Application Support') : join(home, '.config');
   const env = { ...process.env, HOME: home, USERPROFILE: home, APPDATA: join(home, 'AppData', 'Roaming') };
-  delete env.XDG_CONFIG_HOME;
+  delete env.XDG_CONFIG_HOME; delete env.CODEX_HOME;
   const file = (rel, text) => { const p = join(home, rel); mkdirSync(join(p, '..'), { recursive: true }); if (text !== undefined) writeFileSync(p, text); return p; };
   const run = (...args) => {
     const r = spawnSync(process.execPath, [installer, ...args], { env, encoding: 'utf8', timeout: 60000 });

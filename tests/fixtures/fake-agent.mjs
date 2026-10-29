@@ -2,7 +2,7 @@
 // Deterministic stand-in for an interactive coding agent. It never calls a
 // model or the network and writes only inside its cwd. Usage:
 //   node fake-agent.mjs <scenario>
-// Scenarios: work | false-success | approval | inject | hang | crash | alt | flood | composer | session
+// Scenarios: work | false-success | approval | inject | hang | crash | alt | flood | composer | session | input-mode
 import { createInterface } from 'node:readline';
 import { writeFileSync } from 'node:fs';
 
@@ -11,6 +11,34 @@ const out = text => process.stdout.write(text);
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 if (scenario === 'composer') await composer();
+if (scenario === 'input-mode') await inputMode();
+
+// Purpose-built simulated capability: Ctrl+L verifies literal mode while
+// retaining the exact buffer. This is NOT an OpenCode/Codex key contract.
+async function inputMode() {
+  let text = '', literal = false, executions = 0;
+  out('FakeInputMode 1.0 (simulated, no model)\nMODE: TEXT\n› ');
+  process.stdin.setRawMode(true);
+  for await (const chunk of process.stdin) {
+    for (const ch of chunk.toString('utf8')) {
+      if (ch === '\x04') { out('\nShutting down\n'); process.exit(0); }
+      if (ch === '\x0c') { literal = true; continue; }
+      if (ch === '\r' || ch === '\n') {
+        if (!literal && /[!/@#]/.test(text)) {
+          out('\nUNSAFE EXECUTION\n'); process.exit(4);
+        }
+        writeFileSync('literal-input.json', JSON.stringify({ content: text, executions: ++executions }));
+        out(`\nreceived task #${executions} (literal)\n`);
+        text = '';
+        continue;
+      }
+      text += ch;
+    }
+    const mode = literal ? 'VERIFIED LITERAL (fixture-only Ctrl+L)' :
+      /[!/@#]/.test(text) ? 'UNSAFE shell/command/mention' : 'TEXT';
+    out(`\nMODE: ${mode}\n› ${text}`);
+  }
+}
 
 // Input box of agent TUIs such as Codex CLI: an Enter that arrives within a
 // burst of typed characters is taken as a pasted newline, not as submit.

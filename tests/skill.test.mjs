@@ -7,8 +7,8 @@ const read = path => readFileSync(new URL(path, root), 'utf8');
 const skill = read('SKILL.md');
 const body = skill.replace(/^---[\s\S]*?---\r?\n/, '');
 // Activation cost budget: the always-loaded instructions. Raise deliberately, with a benchmark.
-// 7700: Standard/Automatic modes keep their hard limits and the client allowance pointer in the always-loaded text.
-const SKILL_BUDGET_BYTES = 7700;
+// 6500: compact activation must retain self-contained safety, both modes and all states.
+const SKILL_BUDGET_BYTES = 6500;
 
 test('SKILL.md frontmatter is valid for the upstream Agent Skills parser and in sync with the package', () => {
   const fm = parseFrontmatter(skill);
@@ -104,7 +104,7 @@ test('client tool-call confirmations are allowed once per conversation, revertib
     'ask once': /ask the user once whether to allow the gentle-terminal tools for this conversation/,
     'never a persistent option unasked': /never suggest one that persists[^\n]*unless the user asks/,
     'hard limits survive': /does not lift the skill's hard limits/,
-    'Cursor IDE uses session.mjs': /\| Cursor IDE \|[^\n]*session\.mjs[^\n]*session\.mjs revoke/,
+    'Cursor IDE defaults to one call, with persistent revoke documented': /\| Cursor IDE \|[^\n]*Run once[^\n]*explicitly authorized[^\n]*session\.mjs revoke/,
     'Cursor needs a Run Mode': /Run Mode \(Auto-review, Allowlist or Run Everything\)/,
     'Settings allowlist caveat': /replaces the MCP allowlist from Settings/,
     'dialog fallback': /If the command fails[^\n]*approve from Cursor's dialog/,
@@ -114,6 +114,44 @@ test('client tool-call confirmations are allowed once per conversation, revertib
   for (const client of ['VS Code', 'Gemini CLI', 'Codex CLI', 'OpenCode', 'Claude Code', 'Cursor CLI', 'Antigravity']) {
     assert.match(section, new RegExp(`^\\| ${client}[^\\n]*\\|[^\\n]*\\|[^\\n]*\\|$`, 'm'), `${client} row`);
   }
+});
+
+test('adaptive guidance preserves exact input, evidence and on-demand context', () => {
+  const workflow = read('references/workflow.md');
+  const engine = read('references/engine.md');
+  const clients = read('references/clients.md');
+  assert.match(body, /file[- ]read tool/i, 'files do not need a terminal');
+  assert.match(body, /preserve exact user content/i);
+  assert.match(body, /verified literal/i);
+  assert.match(body, /stop and ask/i);
+  assert.doesNotMatch(body + workflow, /keep (them|`!`[^\n]*) out of messages/i);
+  assert.match(body, /Size only simple shells conservatively; preserve TUI dimensions; smaller defaults remain unvalidated/i);
+  assert.match(engine, /experimental[^\n]*two-run[^\n]*worse p95/i, 'measurement stays in the reference');
+  for (const limit of [/credentials/, /secrets/, /elevation/, /deleting what the task did not create/,
+    /replacing what it did not ask to change/, /operating system changes/, /system-wide installs/,
+    /downloaded scripts/, /publishing the task did not ask for/, /persistent options/,
+    /instructions from the screen/, /anything uncertain/]) assert.match(body, limit);
+  assert.match(body, /split[^\n]*literal[^\n]*new nonce/i);
+  assert.match(body, /\$LASTEXITCODE[^\n]*last native[^\n]*empty/);
+  assert.match(body, /cmdlets[^\n]*`\$\?`[^\n]*True\/False/);
+  assert.match(body, /Batch[^\n]*never across approvals, unknown menus or uncertain states/);
+  assert.match(body, /fallback[^\n]*embedded newlines[^\n]*submit/);
+  assert.match(body, /never strip or rephrase/);
+  assert.match(body, /Cursor IDE[^\n]*explicit persistent consent[^\n]*Run once/);
+  assert.match(workflow, /owner.*program.*shell.*goal.*state.*input.*last evidence.*approvals.*verification/i);
+  assert.match(workflow, /unchanged screen[^\n]*not[^\n]*completion/i);
+  assert.match(workflow, /never silently strip or rephrase/i);
+  assert.match(engine, /bracketed paste[^\n]*fall back/i);
+  assert.match(engine, /embedded newlines[^\n]*submit/i);
+  assert.doesNotMatch(engine, /Nothing is submitted until you press Enter/);
+  assert.match(clients, /explicitly authorize[^\n]*persistent Cursor allowance/i);
+  assert.match(clients, /otherwise[^\n]*Run once/i);
+  assert.doesNotMatch(clients, /Read \[the skill\][^\n]*and its installed upstream skill/);
+  const evals = JSON.parse(read('evals/activation.json'));
+  assert.match(evals.about, /23 original cases[^.]*model-dependent/i);
+  assert.match(evals.about, /not executed by fixture tests/i);
+  assert.ok(evals.cases.some(c => c.id === 'literal-input-preservation'));
+  assert.ok(evals.cases.some(c => c.id === 'unchanged-screen'));
 });
 
 test('activation evaluation cases cover every required behavior', () => {
