@@ -6,6 +6,10 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+
+- Deterministic benchmark: bidirectional wire bytes, explicitly labelled text-only token estimates (never image bytes), null real-model usage, stable tool-contract digest, symmetric fresh-marker verification and alternating strategy order. Added an experimental 12-row shell comparison, argument validation, failure-safe cleanup and regression tests. The existing legacy-to-response-reuse improvement predates this work; no billed-token gain is claimed.
+
 ## [1.3.0] - 2026-10-26
 
 ### Added
