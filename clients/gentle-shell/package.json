@@ -1,0 +1,9 @@
+{
+  "name": "gentle-terminal-gentle-shell",
+  "private": true,
+  "type": "module",
+  "description": "Gentle Shell (Pi) extension that starts this checkout's gentle-terminal launcher on demand.",
+  "peerDependencies": {
+    "typebox": "*"
+  }
+}

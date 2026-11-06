@@ -26,7 +26,7 @@ the ones that already have it. Safe to run again: unchanged clients are left alo
 
   --dry-run          Show what would change; write nothing.
   --update           Fast-forward this git checkout first, then install/update.
-  --uninstall        Remove gentle-terminal entries and skill links.
+  --uninstall        Remove gentle-terminal entries, skill links and the Gentle Shell extension link.
   --only <ids>       Limit to these clients (comma separated).
   --skip <ids>       Leave these clients alone (comma separated).
   --node <command>   Command clients use to start Node (default "node").
@@ -51,6 +51,7 @@ function clientTable({ home, config, appData }, nodeCommand) {
   const standard = () => ({ command: nodeCommand, args: [launcher] });
   const gemini = join(home, '.gemini');
   const codexHome = process.env.CODEX_HOME || join(home, '.codex');
+  const gentleShell = join(home, '.gentle-shell', 'agent');
   const opencodeDir = join(config, 'opencode');
   const opencodeFile = existsSync(join(opencodeDir, 'opencode.jsonc')) && !existsSync(join(opencodeDir, 'opencode.json'))
     ? join(opencodeDir, 'opencode.jsonc') : join(opencodeDir, 'opencode.json');
@@ -64,13 +65,15 @@ function clientTable({ home, config, appData }, nodeCommand) {
     { id: 'opencode', name: 'OpenCode', detect: [opencodeDir], file: opencodeFile, key: 'mcp', entry: () => ({ type: 'local', command: [nodeCommand, launcher], enabled: true }) },
     { id: 'antigravity', name: 'Antigravity (IDE and agy CLI)', detect: ['config', 'antigravity', 'antigravity-cli'].map(d => join(gemini, d)), file: join(gemini, 'config', 'mcp_config.json'), key: 'mcpServers', entry: standard },
     { id: 'gemini', name: 'Gemini CLI', detect: [join(gemini, 'settings.json')], file: join(gemini, 'settings.json'), key: 'mcpServers', entry: standard },
-    { id: 'windsurf', name: 'Windsurf', detect: [join(home, '.codeium', 'windsurf')], file: join(home, '.codeium', 'windsurf', 'mcp_config.json'), key: 'mcpServers', entry: standard }
+    { id: 'windsurf', name: 'Windsurf', detect: [join(home, '.codeium', 'windsurf')], file: join(home, '.codeium', 'windsurf', 'mcp_config.json'), key: 'mcpServers', entry: standard },
+    // Gentle Shell has no MCP config to edit: its extension registers the server per session, after consent.
+    { id: 'gentle-shell', name: 'Gentle Shell', detect: [gentleShell], file: join(gentleShell, 'extensions', SERVER), format: 'extension', skillCopy: join(gentleShell, 'skills', SERVER) }
   ];
 }
 
 function skillTable({ home, config }) {
   return [
-    { dir: join(home, '.agents', 'skills'), clients: ['codex', 'vscode', 'vscode-insiders', 'cursor'] },
+    { dir: join(home, '.agents', 'skills'), clients: ['codex', 'vscode', 'vscode-insiders', 'cursor', 'gentle-shell'] },
     { dir: join(home, '.claude', 'skills'), clients: ['claude-code'] },
     { dir: join(config, 'opencode', 'skills'), clients: ['opencode'] },
     { dir: join(home, '.gemini', 'config', 'skills'), clients: ['antigravity'] },
@@ -314,23 +317,37 @@ function removeLink(path) {
   try { unlinkSync(path); } catch { rmdirSync(path); }
 }
 const ownsFolder = path => { try { return OWN_PACKAGES.has(JSON.parse(readFileSync(join(path, 'package.json'), 'utf8')).name); } catch { return false; } };
-const makeLink = dest => symlinkSync(root, dest, windows ? 'junction' : 'dir');
-function planSkill(dir, mode) {
-  const dest = join(dir, SERVER);
+const makeLink = (source, dest) => symlinkSync(source, dest, windows ? 'junction' : 'dir');
+// `owns` tells whether an existing link's real target belongs to some gentle-terminal checkout.
+function planLink(dest, source, mode, owns) {
   let stat;
   try { stat = lstatSync(dest); } catch { /* missing */ }
   let target;
   try { target = realpathSync.native(dest); } catch { /* missing or broken link */ }
-  const here = target !== undefined && target === realpathSync.native(root);
-  const ourLink = stat?.isSymbolicLink() && (target === undefined || here || ownsFolder(target));
+  const here = target !== undefined && target === realpathSync.native(source);
+  const ourLink = stat?.isSymbolicLink() && (target === undefined || here || owns(target));
   if (mode === 'uninstall') {
-    if (ourLink) return { status: 'removed', apply: () => removeLink(dest) };
+    if (ourLink) return { status: 'removed', had: true, apply: () => removeLink(dest) };
     return { status: stat ? 'kept' : 'absent', detail: stat ? `${dest} is not a link to gentle-terminal; left alone` : undefined };
   }
-  if (!stat) return { status: 'added', apply: () => { mkdirSync(dir, { recursive: true }); makeLink(dest); } };
-  if (here) return { status: 'up to date' };
-  if (ourLink) return { status: 'updated', apply: () => { removeLink(dest); makeLink(dest); } };
+  if (!stat) return { status: 'added', apply: () => { mkdirSync(dirname(dest), { recursive: true }); makeLink(source, dest); } };
+  if (here) return { status: 'up to date', had: true };
+  if (ourLink) return { status: 'updated', had: true, apply: () => { removeLink(dest); makeLink(source, dest); } };
   return { status: 'manual', detail: `${dest} already exists and is not a link to this checkout; remove or rename it to use this one` };
+}
+const planSkill = (dir, mode) => planLink(join(dir, SERVER), root, mode, ownsFolder);
+
+function planExtension(client, mode) {
+  const plan = planLink(client.file, join(root, 'clients', 'gentle-shell'), mode, target => ownsFolder(join(target, '..', '..')));
+  if (mode === 'uninstall') return plan;
+  // A real skill folder in the agent home wins over ~/.agents/skills, so an older copy would shadow this one.
+  let copy;
+  try { copy = lstatSync(client.skillCopy); } catch { /* none */ }
+  let linksHere = false;
+  try { linksHere = copy?.isSymbolicLink() && realpathSync.native(client.skillCopy) === realpathSync.native(root); } catch { /* broken link */ }
+  if (!copy || linksHere) return plan;
+  const note = `${client.skillCopy} is an older skill copy that Gentle Shell loads instead of the linked skill; remove or rename it, then run this again`;
+  return { status: 'manual', had: plan.had, detail: plan.detail ? `${plan.detail}\n    ${note}` : note };
 }
 
 // ---------- runtime ----------
@@ -514,8 +531,10 @@ async function main(argv) {
   for (const client of selected) {
     if (!detected.includes(client)) { results.push({ client, status: 'not installed' }); continue; }
     try {
-      const plan = client.format === 'toml' ? planToml(client, mode, opts.node) : planJson(client, mode, opts.node);
+      const plan = client.format === 'extension' ? planExtension(client, mode)
+        : client.format === 'toml' ? planToml(client, mode, opts.node) : planJson(client, mode, opts.node);
       const row = { client, status: plan.status, detail: plan.detail, had: plan.had };
+      if (write && plan.apply) plan.apply();
       if (write && plan.text !== undefined && ['added', 'updated', 'removed'].includes(plan.status)) {
         const { target, backup } = writeConfig(client.file, plan.text);
         if (!plan.check(readFileSync(target, 'utf8'))) throw new Error(`read-back of ${target} did not match`);

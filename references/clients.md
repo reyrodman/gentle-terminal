@@ -19,10 +19,21 @@ User-level files the installer edits (`~` is the home folder; `<config>` is `%AP
 | Antigravity IDE and `agy` | `~/.gemini/config/mcp_config.json` | `mcpServers` |
 | Gemini CLI | `~/.gemini/settings.json` | `mcpServers` |
 | Windsurf | `~/.codeium/windsurf/mcp_config.json` | `mcpServers` |
+| Gentle Shell | `~/.gentle-shell/agent/extensions/gentle-terminal` | Link to `clients/gentle-shell`, not a config entry; see [Gentle Shell](#gentle-shell) |
 
 Verification status (2026-10-24, Windows 11): the stdio server itself is verified by `npm run smoke` and the E2E suite with a test client. The configuration snippets below follow each client's documented format but were **not** integration-tested by applying them. Installed versions seen while observing startup behavior: Claude Code 2.1.296, Codex CLI 0.163.0, OpenCode 2.1.4. Cursor, VS Code and Claude Desktop were not verified.
 
 Skill discovery differs per client: some scan skill folders, some read `AGENTS.md`-style files, some load skills published by MCP servers (`skills/list`), and some do none of these. When unsure, ask the agent to read `SKILL.md` explicitly.
+
+## Gentle Shell
+
+Gentle Shell (a Pi distribution) gets no MCP configuration entry. `node install.mjs` links `~/.gentle-shell/agent/extensions/gentle-terminal` to this checkout's `clients/gentle-shell` folder, and the skill reaches Gentle Shell through the `~/.agents/skills/gentle-terminal` link, so there is a single skill copy.
+
+The extension adds one tool, `gentle_terminal_activate`. When the agent calls it, the host asks the user to activate Gentle Terminal for the session. Only an explicit approval registers this checkout's `launch.mjs` as a session-local, deferred MCP server under a random `gt_<hex>` name; a declined, cancelled or unavailable dialog registers nothing. Calling it again with exact operation names (for example `create`, `type`, `read`) loads only those `terminal_*` tools for the next turn. The registration ends with the session; child agent sessions (`GENTLE_PI_AGENTS_CHILD=1`) never get the tool. Activation is not authorization for terminal actions, and the terminal keeps your user privileges; it is not a sandbox, and `--cwd` is only the starting folder.
+
+Older hand-made copies are never replaced. A real folder at `extensions/gentle-terminal` or `skills/gentle-terminal` under `~/.gentle-shell/agent` makes the installer report a manual step and link nothing for Gentle Shell: an older skill copy there is loaded instead of the linked skill. Remove or rename it, then run the installer again. `--uninstall` removes the extension link and, as for other clients, the shared `~/.agents/skills` link; real folders stay.
+
+The extension imports `typebox` from Gentle Shell itself and installs nothing; the server runs on this checkout's runtime. Verified with tests against a simulated host (`tests/gentle-shell.test.mjs`) and a temporary home (`tests/install.test.mjs`), not against an installed Gentle Shell.
 
 ## Claude Code
 

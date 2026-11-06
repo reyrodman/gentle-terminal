@@ -46,13 +46,13 @@ Most agent shell tools run one command and hand back its output. That breaks the
 <img src="docs/assets/capabilities.svg" alt="Six capabilities: real terminals and TUIs, supervising coding agents by state, approval-first prompts, verified completion, a one-command installer for nine clients, and a pinned, tested runtime" width="100%">
 
 - 🖥️ **Real terminals, not command runners.** Full PTY with colors, cursor movement and alternate screen, readable as text or PNG screenshots (powered by terminal-use).
-- 🛡️ **Approval-first Agent Skill.** A compact [`SKILL.md`](SKILL.md) (6,486 bytes) with hard rules, an eleven-state decision table and an efficient call loop. Specialized guidance (authorization, recovery, Windows, engine limits, agent supervision) is loaded only when needed.
+- 🛡️ **Approval-first Agent Skill.** A compact [`SKILL.md`](SKILL.md) (6,558 bytes) with hard rules, an eleven-state decision table and an efficient call loop. Specialized guidance (authorization, recovery, Windows, engine limits, agent supervision) is loaded only when needed.
 - 🚦 **Standard or Automatic, your call per task.** The agent asks once, in your language. **Standard** shows you every trust and approval prompt. **Automatic** answers the prompts the task needs, never persistently, and keeps going until the goal is verified; credentials, deletions, system changes and installs, publishing and anything uncertain still stop for you.
 - 🤖 **Supervise other coding agents.** A [state-based workflow](references/workflow.md) with versioned, observed signals for Codex CLI, OpenCode, Antigravity CLI and Claude Code startup.
 - 🧪 **Behavior pinned by tests.** A deterministic simulated agent exercises delayed trust overlays, approval menus, silent hangs, crashes, false completion claims, prompt injection and respawns through the real MCP server, without any model calls.
 - 📌 **Pinned and verifiable.** Runtime locked to `terminal-use@0.2.1` with SHA-512 integrity, installed with `--ignore-scripts`; a test fails if the pin drifts.
 - 🧳 **Portable launcher.** One `node launch.mjs` entry point that works from any cwd and from paths with spaces, forwarding stdio, arguments and exit codes in the same process.
-- 🔌 **One command for every client.** `node install.mjs` registers or updates gentle-terminal in each installed client: Cursor, VS Code, Codex, Claude Code, Claude Desktop, OpenCode, Antigravity, Gemini CLI and Windsurf. Ready-to-copy configs are included for manual setup.
+- 🔌 **One command for every client.** `node install.mjs` registers or updates gentle-terminal in each installed client: Cursor, VS Code, Codex, Claude Code, Claude Desktop, OpenCode, Antigravity, Gemini CLI and Windsurf, plus a consent-gated extension for Gentle Shell. Ready-to-copy configs are included for manual setup.
 - ✅ **Cross-platform CI and deterministic checks.** `node:test` includes simulated-agent supervision and installer checks against a temporary home, plus MCP smoke checks. The CI matrix covers Linux, macOS and Windows; current adaptive-feature results and untested native-client scenarios are separated in the [efficiency report](docs/efficiency.md). No model or network calls in fixtures.
 - 🪶 **No hidden global changes.** No global install, no PATH or profile edits. Client configs and skill links change only when you run the installer, with a backup of every file it edits.
 
@@ -69,7 +69,7 @@ node install.mjs             # installs the runtime and registers every client i
 
 The installer is the same command for a first install and for every later update, and it is safe to run again:
 
-- **Finds your clients by their config files** and only touches clients that are installed. One file can serve several apps: Cursor IDE and `cursor-agent` share `~/.cursor/mcp.json`, the Codex CLI, app and IDE extension share `~/.codex/config.toml`, and the Antigravity IDE and `agy` share `~/.gemini/config/mcp_config.json`. VS Code, Claude Code, Claude Desktop, OpenCode, Gemini CLI and Windsurf have their own files.
+- **Finds your clients by their config files** and only touches clients that are installed. One file can serve several apps: Cursor IDE and `cursor-agent` share `~/.cursor/mcp.json`, the Codex CLI, app and IDE extension share `~/.codex/config.toml`, and the Antigravity IDE and `agy` share `~/.gemini/config/mcp_config.json`. VS Code, Claude Code, Claude Desktop, OpenCode, Gemini CLI and Windsurf have their own files. Gentle Shell gets an extension link instead of a config entry; see [Gentle Shell](references/clients.md#gentle-shell).
 - **Adds or updates per client.** A missing entry is added as `gentle-terminal`. An entry that already runs a gentle-terminal `launch.mjs` from another folder (an older copy, a moved clone) is repointed in place, keeping its name and extra arguments such as `--cwd`. Other servers and settings are kept as they are.
 - **Never guesses.** A file with comments, invalid JSON or a TOML layout it does not recognize is left untouched and reported as a manual step (exit code 2).
 - **Backs up and checks.** Every changed file gets a `.bak-gentle-terminal-<time>` copy, is written atomically and read back. The pinned runtime is installed only when missing or out of date (the previous one is restored if `npm ci` fails), and the server must answer an MCP handshake before any client is touched.
@@ -317,6 +317,7 @@ gentle-terminal/
 │   ├── windows.md           # PowerShell, cmd and ConPTY behavior
 │   ├── engine.md            # terminal-use limits, wait semantics, measured cost
 │   └── clients.md           # Activation notes per MCP client
+├── clients/gentle-shell/    # Consent-gated Gentle Shell extension, linked by install.mjs
 ├── bench/                   # Reproducible cost benchmark
 ├── evals/                   # Behavior cases for real-agent evaluation
 ├── examples/                # Copy-paste client configs and example prompts

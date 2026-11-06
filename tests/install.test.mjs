@@ -231,6 +231,55 @@ test('no detected client creates nothing', t => {
   assert.deepEqual(readdirSync(m.home), []);
 });
 
+test('Gentle Shell: the extension is linked into the agent home, the skill comes from ~/.agents/skills, and uninstall removes only the link', t => {
+  const m = machine();
+  t.after(m.cleanup);
+  const settings = m.file('.gentle-shell/agent/settings.json', '{"keep":true}\n');
+  const extension = join(m.home, '.gentle-shell', 'agent', 'extensions', 'gentle-terminal');
+  const r = m.run();
+  assert.equal(r.code, 0, r.out);
+  assert.match(r.out, /Gentle Shell\s+added/);
+  assert.ok(lstatSync(extension).isSymbolicLink(), 'extension is a link, not a copy');
+  assert.equal(realpathSync(extension), realpathSync(join(root, 'clients', 'gentle-shell')));
+  assert.equal(realpathSync(join(m.home, '.agents', 'skills', 'gentle-terminal')), realpathSync(root));
+  assert.ok(!existsSync(join(m.home, '.gentle-shell', 'agent', 'skills')), 'no second skill copy for Gentle Shell to report as a duplicate');
+  assert.equal(readFileSync(settings, 'utf8'), '{"keep":true}\n');
+  assert.equal(backups(m.home).length, 0);
+
+  const before = tree(m.home);
+  const again = m.run();
+  assert.equal(again.code, 0, again.out);
+  assert.match(again.out, /Gentle Shell\s+up to date/);
+  assert.deepEqual(tree(m.home), before, 'second run changes nothing');
+
+  const gone = m.run('--uninstall');
+  assert.equal(gone.code, 0, gone.out);
+  assert.match(gone.out, /Gentle Shell\s+removed/);
+  assert.ok(!existsSync(extension));
+  assert.ok(existsSync(join(root, 'clients', 'gentle-shell', 'index.js')), 'the checkout is never touched');
+  assert.equal(readFileSync(settings, 'utf8'), '{"keep":true}\n');
+});
+
+test('Gentle Shell: older copies in the agent home are reported for a manual step and left unchanged', t => {
+  const m = machine();
+  t.after(m.cleanup);
+  m.file('.gentle-shell/agent/extensions/gentle-terminal/package.json', '{"name":"gentle-terminal-agent-extension"}');
+  m.file('.gentle-shell/agent/skills/gentle-terminal/SKILL.md', '---\nname: gentle-terminal\n---\nold copy\n');
+  const agent = join(m.home, '.gentle-shell', 'agent');
+  const before = tree(agent);
+  const r = m.run();
+  assert.equal(r.code, 2, r.out);
+  assert.match(r.out, /Gentle Shell\s+manual/);
+  assert.match(r.out, /extensions[\\/]gentle-terminal already exists and is not a link to this checkout/);
+  assert.match(r.out, /skills[\\/]gentle-terminal is an older skill copy that Gentle Shell loads instead of the linked skill; remove or rename it/);
+  assert.deepEqual(tree(agent), before, 'older copies stay byte-for-byte unchanged');
+
+  rmSync(join(agent, 'extensions'), { recursive: true });
+  const skillOnly = m.run();
+  assert.equal(skillOnly.code, 2, skillOnly.out);
+  assert.ok(!existsSync(join(agent, 'extensions', 'gentle-terminal')), 'no extension link while an older skill copy would shadow the linked skill');
+});
+
 test('started through a linked folder, the installer still runs', t => {
   const m = machine();
   t.after(m.cleanup);
