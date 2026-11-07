@@ -13,11 +13,12 @@ const expected = [
   'examples/README.md', 'examples/claude-desktop/claude_desktop_config.json',
   'examples/codex/config.toml', 'examples/cursor/mcp.json',
   'examples/opencode/opencode.json', 'examples/prompts.md', 'examples/vscode/mcp.json',
+  'clients/gentle-shell/extension.mjs', 'clients/gentle-shell/index.js', 'clients/gentle-shell/package.json',
   'evals/activation.json', 'install.mjs', 'launch.mjs', 'package.json',
   'references/authorization.md', 'references/clients.md', 'references/engine.md',
   'references/recovery.md', 'references/windows.md', 'references/workflow.md',
   'runtime/package-lock.json', 'runtime/package.json', 'session.mjs', 'smoke.mjs',
-  'tests/export.test.mjs', 'tests/fixtures/fake-agent.mjs', 'tests/guards.test.mjs',
+  'tests/export.test.mjs', 'tests/fixtures/fake-agent.mjs', 'tests/gentle-shell.test.mjs', 'tests/guards.test.mjs',
   'tests/helpers/mcp-client.mjs', 'tests/install.test.mjs', 'tests/launcher.test.mjs', 'tests/pin.test.mjs', 'tests/session.test.mjs', 'tests/skill.test.mjs', 'tests/supervision.test.mjs'
 ].sort();
 const lifecycle = ['preinstall', 'install', 'postinstall', 'prepare', 'prepack', 'postpack', 'prepublish', 'prepublishOnly'];

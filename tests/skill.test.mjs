@@ -7,8 +7,8 @@ const read = path => readFileSync(new URL(path, root), 'utf8');
 const skill = read('SKILL.md');
 const body = skill.replace(/^---[\s\S]*?---\r?\n/, '');
 // Activation cost budget: the always-loaded instructions. Raise deliberately, with a benchmark.
-// 6500: compact activation must retain self-contained safety, both modes and all states.
-const SKILL_BUDGET_BYTES = 6500;
+// 6600: compact activation must retain self-contained safety, both modes, all states and the Gentle Shell activation hint.
+const SKILL_BUDGET_BYTES = 6600;
 
 test('SKILL.md frontmatter is valid for the upstream Agent Skills parser and in sync with the package', () => {
   const fm = parseFrontmatter(skill);

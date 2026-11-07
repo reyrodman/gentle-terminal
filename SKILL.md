@@ -9,7 +9,7 @@ metadata:
 ---
 
 ## Activation
-Use a file-read tool for files, ordinary shell tool for simple non-interactive commands; activate for interactive/persistent work. Missing `terminal_*` tools: see [setup](README.md#quick-start); ask before installing/registering.
+Use a file-read tool for files, ordinary shell tool for simple non-interactive commands; activate for interactive/persistent work. Missing `terminal_*` tools: if `gentle_terminal_activate` exists, call it (host asks consent); else see [setup](README.md#quick-start); ask before installing/registering.
 
 ## Modes
 Before first `terminal_create`, ask once per task, in the user's language (translate both options), unless a mode or approval policy was given:
