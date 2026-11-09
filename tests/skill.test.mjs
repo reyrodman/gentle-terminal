@@ -72,6 +72,17 @@ test('safety rules survive any token optimization', () => {
   assert.match(auth, /"always", "for this project", "don't ask again"/);
 });
 
+test('task mode, single-character prompts and Windows completion stay explicit', () => {
+  assert.match(body, /Each new user instruction is a new task; ask again unless the user explicitly says to keep the mode/i);
+  assert.match(body, /ambiguous[^\n]*ask/i);
+  assert.match(body, /Read and classify[^\n]*Read-Host[^\n]*interpret[^\n]*permission/i);
+  assert.doesNotMatch(body, /If permitted, `terminal_type` literal `y`/i, 'do not prescribe y for arbitrary prompts');
+  assert.match(body, /For authorized `y`,[^\n]*`terminal_type`[^\n]*no newline[^\n]*`terminal_press` `Enter`[^\n]*only if required/i);
+  assert.match(body, /command session[^\n]*exit status/i);
+  assert.match(body, /new nonce[^\n]*command echo cannot match/i);
+  assert.match(body, /Windows[^\n]*silence[^\n]*RUNNING, not done[^\n]*marker/i);
+});
+
 test('automatic mode keeps every hard limit with the user', () => {
   const auth = read('references/authorization.md');
   const section = /## Automatic mode\n([\s\S]*?)(?=\n## |$)/.exec(auth)?.[1] ?? '';

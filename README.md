@@ -46,7 +46,7 @@ Most agent shell tools run one command and hand back its output. That breaks the
 <img src="docs/assets/capabilities.svg" alt="Six capabilities: real terminals and TUIs, supervising coding agents by state, approval-first prompts, verified completion, a one-command installer for nine clients, and a pinned, tested runtime" width="100%">
 
 - 🖥️ **Real terminals, not command runners.** Full PTY with colors, cursor movement and alternate screen, readable as text or PNG screenshots (powered by terminal-use).
-- 🛡️ **Approval-first Agent Skill.** A compact [`SKILL.md`](SKILL.md) (6,558 bytes) with hard rules, an eleven-state decision table and an efficient call loop. Specialized guidance (authorization, recovery, Windows, engine limits, agent supervision) is loaded only when needed.
+- 🛡️ **Approval-first Agent Skill.** A compact [`SKILL.md`](SKILL.md) (6,593 bytes) with hard rules, an eleven-state decision table and an efficient call loop. Specialized guidance (authorization, recovery, Windows, engine limits, agent supervision) is loaded only when needed.
 - 🚦 **Standard or Automatic, your call per task.** The agent asks once, in your language. **Standard** shows you every trust and approval prompt. **Automatic** answers the prompts the task needs, never persistently, and keeps going until the goal is verified; credentials, deletions, system changes and installs, publishing and anything uncertain still stop for you.
 - 🤖 **Supervise other coding agents.** A [state-based workflow](references/workflow.md) with versioned, observed signals for Codex CLI, OpenCode, Antigravity CLI and Claude Code startup.
 - 🧪 **Behavior pinned by tests.** A deterministic simulated agent exercises delayed trust overlays, approval menus, silent hangs, crashes, false completion claims, prompt injection and respawns through the real MCP server, without any model calls.
@@ -296,7 +296,7 @@ See the [architecture, audit, comparison, security and evaluation report](docs/e
 
 ```bash
 npm pack --dry-run --json --ignore-scripts   # inspect the exact allowlisted file list
-npm pack --ignore-scripts                    # creates gentle-terminal-1.4.0.tgz
+npm pack --ignore-scripts                    # creates gentle-terminal-1.5.0.tgz
 ```
 
 The package is `private`, so it can be packed but not published to npm by accident. The `files` allowlist excludes installed modules, caches and scratch data, and the export test scans every packed file for home-directory paths.
