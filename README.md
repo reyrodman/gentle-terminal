@@ -46,7 +46,7 @@ Most agent shell tools run one command and hand back its output. That breaks the
 <img src="docs/assets/capabilities.svg" alt="Six capabilities: real terminals and TUIs, supervising coding agents by state, approval-first prompts, verified completion, a one-command installer for nine clients, and a pinned, tested runtime" width="100%">
 
 - 🖥️ **Real terminals, not command runners.** Full PTY with colors, cursor movement and alternate screen, readable as text or PNG screenshots (powered by terminal-use).
-- 🛡️ **Approval-first Agent Skill.** A compact [`SKILL.md`](SKILL.md) (6,558 bytes) with hard rules, an eleven-state decision table and an efficient call loop. Specialized guidance (authorization, recovery, Windows, engine limits, agent supervision) is loaded only when needed.
+- 🛡️ **Approval-first Agent Skill.** A compact [`SKILL.md`](SKILL.md) (6,593 bytes) with hard rules, an eleven-state decision table and an efficient call loop. Specialized guidance (authorization, recovery, Windows, engine limits, agent supervision) is loaded only when needed.
 - 🚦 **Standard or Automatic, your call per task.** The agent asks once, in your language. **Standard** shows you every trust and approval prompt. **Automatic** answers the prompts the task needs, never persistently, and keeps going until the goal is verified; credentials, deletions, system changes and installs, publishing and anything uncertain still stop for you.
 - 🤖 **Supervise other coding agents.** A [state-based workflow](references/workflow.md) with versioned, observed signals for Codex CLI, OpenCode, Antigravity CLI and Claude Code startup.
 - 🧪 **Behavior pinned by tests.** A deterministic simulated agent exercises delayed trust overlays, approval menus, silent hangs, crashes, false completion claims, prompt injection and respawns through the real MCP server, without any model calls.
@@ -286,9 +286,11 @@ No test makes model or network calls, and scratch state lives in the OS temp dir
 
 ### Efficiency results: measured scope and limits
 
-These results ship in **1.4.0**. Skill activation is **7,679 → 6,486 bytes (-15.5%)**, not a measured reduction in billed tokens. The default 13-tool contract and `terminal-use@0.2.1` remain unchanged. The 15-run candidate benchmark completed with **45/45 fresh-marker verifications**; final integrated tests passed **74/74**, with smoke and verify exit 0. No 20% total-token or p95 noninferiority claim is made.
+The following measurements are from **1.4.0**, not a new 1.5.0 benchmark. Skill activation was **7,679 → 6,486 bytes (-15.5%)**, not a measured reduction in billed tokens. The default 13-tool contract and `terminal-use@0.2.1` remain unchanged. The 15-run candidate benchmark completed with **45/45 fresh-marker verifications**; final integrated tests passed **74/74**, with smoke and verify exit 0. No 20% total-token or p95 noninferiority claim is made.
 
-The measured 1.3.0 baseline (Windows x64, Node 24.16.0, stdio harness, 15 runs) recorded tools/list at **24,828 bytes**, optimized task p50/p95 at **313.4/338.0 ms**, and **54/54 tests** with smoke/bench/verify exit 0. The four-to-one-call strategy already existed before this feature. The 12-row experiment reduced response traffic **44.2%**, but sampled p95 increased **16.6%** (390.8 → 455.5 ms) against the same-run 40-row strategy, so smaller dimensions are **not promoted to a default**. Real-client/model evaluations have not run.
+The measured 1.3.0 baseline (Windows x64, Node 24.16.0, stdio harness, 15 runs) recorded tools/list at **24,828 bytes**, optimized task p50/p95 at **313.4/338.0 ms**, and **54/54 tests** with smoke/bench/verify exit 0. The four-to-one-call strategy already existed before this feature. The 12-row experiment reduced response traffic **44.2%**, but sampled p95 increased **16.6%** (390.8 → 455.5 ms) against the same-run 40-row strategy, so smaller dimensions are **not promoted to a default**. The formal real-client/model evaluation cases have not been run as a controlled benchmark.
+
+For the 1.5.0 candidate, local Windows x64 verification with Node 24.16.0 passed 88/88 tests and the MCP smoke test. The Gentle Shell client extension was tested against a simulated host and temporary home; these checks do not prove model compliance or native integration across clients.
 
 See the [architecture, audit, comparison, security and evaluation report](docs/efficiency.md) and [benchmark methodology](bench/README.md) for scope, measured values, remaining proof and reproduction instructions. The upstream `MaxListenersExceededWarning` appeared on stderr in both benchmark reports; it is not hidden or fixed here.
 
@@ -296,7 +298,7 @@ See the [architecture, audit, comparison, security and evaluation report](docs/e
 
 ```bash
 npm pack --dry-run --json --ignore-scripts   # inspect the exact allowlisted file list
-npm pack --ignore-scripts                    # creates gentle-terminal-1.4.0.tgz
+npm pack --ignore-scripts                    # creates gentle-terminal-1.5.0.tgz
 ```
 
 The package is `private`, so it can be packed but not published to npm by accident. The `files` allowlist excludes installed modules, caches and scratch data, and the export test scans every packed file for home-directory paths.

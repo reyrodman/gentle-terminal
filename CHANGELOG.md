@@ -6,6 +6,12 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-11-09
+
+### Changed
+
+- Clarified task-scoped approval: a prior Automatic choice does not authorize a new task unless the user explicitly extends it. Added explicit `Read-Host` classification, literal-character input and Windows completion guidance. These remain agent instructions, not host-enforced controls.
+
 ### Added
 
 - Gentle Shell client. `install.mjs` links `~/.gentle-shell/agent/extensions/gentle-terminal` to the new `clients/gentle-shell` extension, and the skill reaches Gentle Shell through `~/.agents/skills`. The extension's `gentle_terminal_activate` tool asks for session consent in the host UI; only an approval registers this checkout's launcher as a session-local, deferred MCP server under a random name, and exact operations load only the named `terminal_*` tools. Child agent sessions get no tool. Older real copies in the agent home are reported as a manual step and left unchanged. `SKILL.md` points to the tool when `terminal_*` tools are missing (6,486 → 6,558 bytes). Tested against a simulated host and a temporary home, not an installed Gentle Shell.
@@ -99,7 +105,8 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 - Deterministic MCP stdio smoke test and `node:test` suite covering launcher forwarding, relocation, dependency pinning and export allowlist privacy checks.
 - Cross-platform CI on Linux, macOS and Windows.
 
-[Unreleased]: https://github.com/reyrodman/gentle-terminal/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/reyrodman/gentle-terminal/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/reyrodman/gentle-terminal/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/reyrodman/gentle-terminal/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/reyrodman/gentle-terminal/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/reyrodman/gentle-terminal/compare/v1.2.0...v1.2.1
